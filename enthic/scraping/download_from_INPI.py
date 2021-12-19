@@ -26,8 +26,8 @@ from os.path import abspath, basename, dirname, getsize, join, pardir
 import wget
 from py7zr import SevenZipFile
 
-from enthic.scraping.database_requests_utils import get_existing_metadata
-from enthic.scraping.extract_bundle import process_daily_zip_file, process_xml_file
+from .database_requests_utils import get_existing_metadata
+from .extract_bundle import process_daily_zip_file, process_xml_file
 
 ################################################################################
 # READ CONFIGURATION
@@ -199,7 +199,3 @@ def main():
         explore_and_process_FTP_folder(args.folder)
     elif args.source == "CQuest":
         explore_and_process_CQuest_mirror()
-
-
-if __name__ == "__main__":
-    main()  # ONLY IF EXECUTED NOT WHEN IMPORTED

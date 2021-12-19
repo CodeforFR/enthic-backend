@@ -325,7 +325,7 @@ def search():
     # WRONG JSON KEY
     except KeyError as error:
         return ErrorJSONResponse(
-            "Unhandled JSON key resulting the following error: {}".format(str(error))
+            f"Unhandled JSON key resulting the following error: {str(error)}"
         )
 
 

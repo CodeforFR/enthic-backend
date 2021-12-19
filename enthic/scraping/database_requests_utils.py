@@ -24,11 +24,12 @@ from logging import error, info
 from os.path import abspath, basename, dirname, getsize, join, pardir
 
 import wget
-from accountability_metadata import AccountabilityMetadata
-from bundle_ORM import Bundle
 from py7zr import SevenZipFile
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
+
+from .accountability_metadata import AccountabilityMetadata
+from .bundle_ORM import Bundle
 
 ################################################################################
 # READ CONFIGURATION

@@ -1,1 +1,5 @@
 flask
+py7zr
+pymysql
+sqlalchemy
+wget

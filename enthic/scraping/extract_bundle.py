@@ -14,6 +14,7 @@ Coding Rules:
 import codecs
 import datetime
 import json
+import os
 import xml.etree.ElementTree as ElementTree
 from csv import reader
 from enum import Enum, auto
@@ -28,10 +29,13 @@ from zipfile import BadZipFile, ZipFile
 
 import requests
 import sqlalchemy
-from accountability_metadata import AccountabilityMetadata, MetadataCase
 from sqlalchemy import select
 
-from enthic.scraping.database_requests_utils import (
+from enthic.utils.conversion import CON_ACC, CON_APE, CON_BUN
+from enthic.utils.INPI_data_enhancer import decrypt_code_motif
+
+from .accountability_metadata import AccountabilityMetadata, MetadataCase
+from .database_requests_utils import (
     SESSION,
     get_metadata,
     replace_bundle_into_database,
@@ -42,8 +46,6 @@ from enthic.scraping.database_requests_utils import (
     save_metadata_to_database,
     sum_bundle_into_database,
 )
-from enthic.utils.conversion import CON_ACC, CON_APE, CON_BUN
-from enthic.utils.INPI_data_enhancer import decrypt_code_motif
 
 
 class ModifiedData(Enum):
@@ -68,10 +70,8 @@ with open(
 ################################################################################
 # CHECKING THE INPUT AND OUTPUT AND DIRECTORY PATH
 # INPUT
-if isdir(CONFIG["inputPath"]) is False:
-    raise NotADirectoryError(
-        "Configuration input path {} does not exist".format(CONFIG["inputPath"])
-    )
+if not isdir(CONFIG["inputPath"]):
+    os.mkdir(CONFIG["inputPath"])
 
 ################################################################################
 # READ THE CODES TO EXTRACT
@@ -112,22 +112,22 @@ def read_address_data(address_xml_item, xml_file_name):
         if not town.strip():
             postal_code, town = (ModifiedData.WRONG_FORMAT.value,) * 2
     except TypeError as error:
-        debug("{}: {}".format(str(error), str(address_xml_item.text)))
+        debug(f"{str(error)}: {str(address_xml_item.text)}")
         postal_code, town = (ModifiedData.WRONG_FORMAT.value,) * 2
     except AttributeError as error:
         try:
-            debug("{}: {}".format(str(error), str(address_xml_item.text)))
+            debug(f"{str(error)}: {str(address_xml_item.text)}")
             regex_match = RE_TOWN.match(address_xml_item.text)
             town = regex_match.group(1).upper()
             postal_code = ModifiedData.WRONG_FORMAT.value
         except AttributeError as error:
             try:
-                debug("{}: {}".format(str(error), str(address_xml_item.text)))
+                debug(f"{str(error)}: {str(address_xml_item.text)}")
                 regex_match = RE_POSTAL_CODE.match(address_xml_item.text)
                 town = ModifiedData.WRONG_FORMAT.value
                 postal_code = regex_match.group(1)
             except AttributeError as error:
-                debug("{}: {}".format(str(error), str(address_xml_item.text)))
+                debug(f"{str(error)}: {str(address_xml_item.text)}")
                 postal_code, town = (ModifiedData.WRONG_FORMAT.value,) * 2
 
     return postal_code, town
