@@ -11,6 +11,7 @@ Coding Rules:
 - No output or print, just log and files.
 """
 import math
+import copy
 from enthic.scoring.tree_french_income_statement import TREE_VIEW
 
 
@@ -21,7 +22,7 @@ def convert_data_to_tree(raw_data):
         :param raw_data : data as enthic API returns it
         :return: given data as a tree
     """
-    new_tree = TREE_VIEW
+    new_tree = copy.deepcopy(TREE_VIEW)
     recursive_fill_tree(new_tree, raw_data)
     return new_tree
 
