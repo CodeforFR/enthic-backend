@@ -16,18 +16,17 @@ from their corresponding directory ``./sh`` and ``./py``.
 **Install dependencies and python package**
 -------------------------------------------
 
-Synaptic packages have to be installed ``libxml2-utils mysql-server tree python3``.
-Pip packages as well have to be installed for development purpose.
+Install system wide the following requirements :
+```
+apt-get install pyenv-virtualenv libxml2-utils mysql-server
+```
 
-.. code-block:: bash
-
-   $ sh ./install-dependencies.sh
-
-To install the enthic python package only.
-
-.. code-block:: bash
-
-   $ sh ./install-wheel.sh
+Create and activate virtual environment python 3.9.4.
+The package uses [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv).
+```
+make create_environment
+make requirements
+```
 
 **Run an instance**
 -------------------

@@ -106,3 +106,4 @@ python/enthic.egg-info/
 python/dist/
 python/enthic/static/documentation/
 *.pyc
+.python-version
