@@ -7,7 +7,6 @@ from functools import wraps
 
 from flask import current_app as application
 from flask import request as app_request
-from MySQLdb._exceptions import DataError
 
 
 def insert_request(func):
@@ -68,8 +67,6 @@ def insert_request(func):
                 agent = "UNKNOWN AGENT"
             try:
                 cur.execute(sql_request, (*(uri, agent), *args))
-            except DataError:
-                pass
             finally:
                 cur.close()
                 mysql.connection.commit()

@@ -52,7 +52,7 @@ A flask REST API can distribute data over the web. Following Swagger standard.
 
 .. code-block:: bash
 
-   $ python3 ./app.py
+   $ python -m enthic.app
 
 **Development and contribution**
 --------------------------------

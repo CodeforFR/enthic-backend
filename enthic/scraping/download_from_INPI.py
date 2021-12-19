@@ -2,12 +2,6 @@
 ========================================
 Download daily zip files from INPI's FTP
 ========================================
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
 """
 
 import os
@@ -119,7 +113,6 @@ def explore_and_process_FTP_folder(folderToExplore):
 def explore_and_process_CQuest_mirror():
     """
     Function that explore CQuest mirror to download every daily zip files
-
     """
     for year in range(2017, 2022):
         url = "http://data.cquest.org/inpi_rncs/comptes/" + str(year) + "/"
@@ -152,7 +145,7 @@ def explore_and_process_CQuest_mirror():
                     print(url + file_name + " doesn't exist : ", error)
 
 
-def main():
+def parse_args():
     """
     Download INPI's daily file into input folder, as stated in configuration file.
     """
@@ -162,7 +155,7 @@ def main():
     parser = ArgumentParser(description="Download data and add it to Enthic database")
     parser.add_argument(
         "--source",
-        help="get closed etablissement only (default is only opened",
+        help="get closed etablissement only (default is only opened)",
         choices=["INPI", "CQuest"],
         default="INPI",
         required=True,
@@ -191,11 +184,18 @@ def main():
         open(
             join(CONFIG["inputPath"], CONFIG["importHistoricFile"]), "x"
         )  # Create file
+    return args
 
+
+def main():
+    args = parse_args()
     if args.source == "INPI":
         if not args.folder:
-            print("Argument 'folder' is mandatory for source 'INPI'")
-            exit()
+            raise RuntimeError("Argument 'folder' is mandatory for source 'INPI'")
         explore_and_process_FTP_folder(args.folder)
     elif args.source == "CQuest":
         explore_and_process_CQuest_mirror()
+
+
+if __name__ == "__main__":
+    main()
