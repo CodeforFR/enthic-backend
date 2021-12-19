@@ -575,7 +575,7 @@ def test_search(host, probe, limit):
     )
     assert (
         response.status_code == 200
-    ), f"WRONG HTTP RETURN CODE FOR PROBE = {{}}, LIMIT = {{}}"
+    ), f"WRONG HTTP RETURN CODE FOR PROBE = {probe}, LIMIT = {limit}"
     assert loads(response.text) is not None, (
         "NOT RETURNING A JSON, INSTEAD: %s" % response.text
     )
@@ -597,7 +597,7 @@ def test_search_random_letter(host, probe, limit):
     )
     assert (
         response.status_code == 200
-    ), f"WRONG HTTP RETURN CODE WITH PROBE = {letter}, LIMIT = {probe}"
+    ), f"WRONG HTTP RETURN CODE WITH PROBE = {probe}, LIMIT = {limit}"
     assert loads(response.text) is not None, "NOT RETURNING A JSON"
 
 
