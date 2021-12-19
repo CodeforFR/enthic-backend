@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===================
 Set of function to help handle errors in data from INPI
@@ -21,7 +20,7 @@ def decrypt_code_motif(raw_code):
         :return: valid code
     """
     try:
-        simplified_code = str(int(raw_code)) # To suppress leading zero
+        simplified_code = str(int(raw_code))  # To suppress leading zero
         if simplified_code in CODE_MOTIF:
             return simplified_code
     except ValueError:

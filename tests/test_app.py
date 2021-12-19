@@ -498,7 +498,7 @@ def test_compute_ape_deciles(host, ape, year, score):
     response = get(url)
     assert (
         response.status_code == 200 or response.status_code == 400
-    ), "WRONG HTTP RETURN CODE %s INSTEAD OF 200 or 400 on url %s" % (
+    ), "WRONG HTTP RETURN CODE {} INSTEAD OF 200 or 400 on url {}".format(
         response.status_code,
         url,
     )
@@ -575,7 +575,7 @@ def test_search(host, probe, limit):
     )
     assert (
         response.status_code == 200
-    ), "WRONG HTTP RETURN CODE FOR PROBE = {}, LIMIT = {}" % (probe, limit)
+    ), f"WRONG HTTP RETURN CODE FOR PROBE = {{}}, LIMIT = {{}}"
     assert loads(response.text) is not None, (
         "NOT RETURNING A JSON, INSTEAD: %s" % response.text
     )
@@ -597,7 +597,7 @@ def test_search_random_letter(host, probe, limit):
     )
     assert (
         response.status_code == 200
-    ), "WRONG HTTP RETURN CODE WITH PROBE = {}, LIMIT = {}".format(letter, probe, limit)
+    ), f"WRONG HTTP RETURN CODE WITH PROBE = {letter}, LIMIT = {probe}"
     assert loads(response.text) is not None, "NOT RETURNING A JSON"
 
 
@@ -663,16 +663,14 @@ def test_search_page(host, probe, per_page):
        :param per_page: Parametrize fixture of the number of results by page.
     """
     response = get(
-        "http://"
-        + host
-        + "/company/search/page?probe=%s&per_page=%s" % (probe, per_page)
+        "http://" + host + f"/company/search/page?probe={probe}&per_page={per_page}"
     )
     assert loads(response.text) is not None, (
         "NOT RETURNING A JSON, INSTEAD: %s" % response.text
     )
     assert (
         response.status_code == 200
-    ), "WRONG HTTP RETURN CODE, got %s with comment : %s" % (
+    ), "WRONG HTTP RETURN CODE, got {} with comment : {}".format(
         response.status_code,
         response.text,
     )

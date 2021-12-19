@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 =========================
 Valid JSON response Class
@@ -28,11 +27,13 @@ class OKJSONResponse(JSONResponse):
            :param object_response: Dictionary to convert to JSON.
            :raise TypeError: If argument not a dict, list or tuple.
         """
-        if object_response.__class__ is dict \
-                or object_response.__class__ is list \
-                or object_response.__class__ is tuple:
+        if (
+            object_response.__class__ is dict
+            or object_response.__class__ is list
+            or object_response.__class__ is tuple
+        ):
             JSONResponse.__init__(self, object_response)
         else:
             raise TypeError(
-                'OKJSONResponse CLASS CONSTRUCTOR ARGUMENT MUST BE A dict, list or tuple.'
+                "OKJSONResponse CLASS CONSTRUCTOR ARGUMENT MUST BE A dict, list or tuple."
             )

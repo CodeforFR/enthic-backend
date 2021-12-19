@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 =========================
 Error JSON response Class
@@ -12,8 +11,9 @@ Coding Rules:
 - Only argument is configuration file.
 - No output or print, just log and files.
 """
-from enthic.utils.json_response import JSONResponse
 from flask import request
+
+from enthic.utils.json_response import JSONResponse
 
 
 class ErrorJSONResponse(JSONResponse):
@@ -30,14 +30,18 @@ class ErrorJSONResponse(JSONResponse):
            :raise TypeError: If argument not a str.
         """
         if error_message.__class__ is str:
-            JSONResponse.__init__(self, {
-                "@context": "http://www.w3.org/ns/hydra/context.jsonld",
-                "@type": "Error",
-                "@id": request.full_path,
-                "title": "Bad request",
-                "description": error_message
-            }, status=400)
+            JSONResponse.__init__(
+                self,
+                {
+                    "@context": "http://www.w3.org/ns/hydra/context.jsonld",
+                    "@type": "Error",
+                    "@id": request.full_path,
+                    "title": "Bad request",
+                    "description": error_message,
+                },
+                status=400,
+            )
         else:
             raise TypeError(
-                'ErrorJSONResponse CLASS CONSTRUCTOR ARGUMENT MUST BE AN str.'
+                "ErrorJSONResponse CLASS CONSTRUCTOR ARGUMENT MUST BE AN str."
             )

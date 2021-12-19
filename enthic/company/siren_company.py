@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ======================================================
 Class representing a company, constructed with a SIREN
@@ -14,10 +13,10 @@ Coding Rules:
 """
 
 from enthic.company.company import (
-    YearCompany,
-    UniqueBundleCompany,
     MultipleBundleCompany,
-    SirenCompany
+    SirenCompany,
+    UniqueBundleCompany,
+    YearCompany,
 )
 
 
@@ -34,13 +33,17 @@ class AllSirenCompany(MultipleBundleCompany, SirenCompany):
            :param siren: The official siren of the company.
         """
         SirenCompany.__init__(self, siren)
-        MultipleBundleCompany.__init__(self, """
+        MultipleBundleCompany.__init__(
+            self,
+            """
             SELECT identity.siren, denomination, ape, postal_code, town,
                 accountability, bundle, declaration, amount
             FROM identity LEFT JOIN bundle
             ON bundle.siren = identity.siren
             WHERE identity.siren = %s
-            GROUP BY identity.siren, accountability, bundle.bundle, declaration, amount;""", (self.siren,))
+            GROUP BY identity.siren, accountability, bundle.bundle, declaration, amount;""",
+            (self.siren,),
+        )
 
 
 class AverageSirenCompany(UniqueBundleCompany, SirenCompany):
@@ -56,13 +59,17 @@ class AverageSirenCompany(UniqueBundleCompany, SirenCompany):
            :param siren: The official siren of the company.
         """
         SirenCompany.__init__(self, siren)
-        UniqueBundleCompany.__init__(self, """
+        UniqueBundleCompany.__init__(
+            self,
+            """
             SELECT identity.siren, denomination, ape, postal_code, town,
                 accountability, bundle, "average", AVG(amount)
             FROM identity LEFT JOIN bundle
             ON bundle.siren = identity.siren
             WHERE identity.siren = %s
-            GROUP BY bundle.bundle, accountability;""", (self.siren,))
+            GROUP BY bundle.bundle, accountability;""",
+            (self.siren,),
+        )
 
 
 class YearSirenCompany(YearCompany, UniqueBundleCompany, SirenCompany):
@@ -80,10 +87,14 @@ class YearSirenCompany(YearCompany, UniqueBundleCompany, SirenCompany):
         """
         SirenCompany.__init__(self, siren)
         YearCompany.__init__(self, year)
-        UniqueBundleCompany.__init__(self, """
+        UniqueBundleCompany.__init__(
+            self,
+            """
             SELECT identity.siren, denomination, ape, postal_code, town,
                 accountability, bundle, %s, amount
             FROM identity LEFT JOIN bundle
             ON bundle.siren = identity.siren
             WHERE identity.siren = %s
-            AND declaration = %s;""", (self.year, self.siren, self.year))
+            AND declaration = %s;""",
+            (self.year, self.siren, self.year),
+        )

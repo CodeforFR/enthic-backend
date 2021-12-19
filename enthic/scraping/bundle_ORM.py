@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ========================================
 ========================================
@@ -10,29 +9,30 @@ Coding Rules:
 - No output or print, just log and files.
 """
 
-from os.path import dirname, join, basename, abspath, pardir, getsize
 import os
-from glob import glob
-import subprocess
-from argparse import ArgumentParser
-from io import BytesIO
-import sys
-from json import load
-from ftplib import FTP_TLS
 import shutil
+import subprocess
+import sys
 import urllib
+from argparse import ArgumentParser
+from ftplib import FTP_TLS
+from glob import glob
+from io import BytesIO
+from json import load
+from logging import error, info
+from os.path import abspath, basename, dirname, getsize, join, pardir
+
 import wget
 from py7zr import SevenZipFile
-from logging import info, error
-
-from sqlalchemy import create_engine, Column, Integer, String, Date, Float
-
+from sqlalchemy import Column, Date, Float, Integer, String, create_engine
 from sqlalchemy.orm import declarative_base
+
 Base = declarative_base()
+
 
 class Bundle(Base):
 
-    __tablename__ = 'bundle'
+    __tablename__ = "bundle"
 
     siren = Column(type_=Integer, nullable=False, primary_key=True)
     declaration = Column(type_=Integer, nullable=False, primary_key=True)

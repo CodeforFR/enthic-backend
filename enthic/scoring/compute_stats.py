@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ====================================================================
 Compute statistics from companies's data after complete and check it
@@ -10,8 +9,9 @@ Coding Rules:
 - Only argument is configuration file.
 - No output or print, just log and files.
 """
-import math
 import copy
+import math
+
 from enthic.scoring.tree_french_income_statement import TREE_VIEW
 
 
@@ -35,18 +35,19 @@ def recursive_fill_tree(tree_item, raw_data):
     """
 
     # Begin to fill children if there are children
-    if 'children' in tree_item:
+    if "children" in tree_item:
         for child_name in tree_item["children"]:
             recursive_fill_tree(tree_item["children"][child_name], raw_data)
 
     # Find corresponding value from raw_data to add to tree_item
     for code in raw_data:
         if code in tree_item["codeLiasses"]:
-            tree_item['data'] = raw_data[code]
-            tree_item['data']["status"] = "official"
-            tree_item['data']['code'] = code
+            tree_item["data"] = raw_data[code]
+            tree_item["data"]["status"] = "official"
+            tree_item["data"]["code"] = code
             del raw_data[code]
             break
+
 
 def check_tree_data(tree_item):
     """
@@ -61,21 +62,22 @@ def check_tree_data(tree_item):
               status : "official"
             }
     """
-    if 'data' not in tree_item:
-        tree_item['data'] = {
-            "code": tree_item['codeLiasses'],
+    if "data" not in tree_item:
+        tree_item["data"] = {
+            "code": tree_item["codeLiasses"],
             "description": "non fourni",
-            "value": float('nan'),
-            "status": "missing"}
+            "value": float("nan"),
+            "status": "missing",
+        }
 
     if "sign" not in tree_item:
-        tree_item['sign'] = 1
+        tree_item["sign"] = 1
 
     if "children" not in tree_item:
         return
 
-    for child_name in tree_item['children']:
-        check_tree_data(tree_item['children'][child_name])
+    for child_name in tree_item["children"]:
+        check_tree_data(tree_item["children"][child_name])
 
     # Accepted amount of difference when checking parent value against it's children
     relative_error = 0.005
@@ -86,70 +88,79 @@ def check_tree_data(tree_item):
     computed_sum_from_computed = 0  # Result from computed children's value
     computed_sum_without_sign = 0  # Result by adding all children (no substraction)
     child_missing_count = 0  # Count of child without value officially given
-    for child_name in tree_item['children']:
-        child = tree_item['children'][child_name]
-        if math.isnan(child['data']['value']):
+    for child_name in tree_item["children"]:
+        child = tree_item["children"][child_name]
+        if math.isnan(child["data"]["value"]):
             child_missing_count += 1
-            if "computedValue" in child['data']:
-                computed_sum_from_computed += child['data']['computedValue'] * child['sign']
+            if "computedValue" in child["data"]:
+                computed_sum_from_computed += (
+                    child["data"]["computedValue"] * child["sign"]
+                )
         else:
-            computed_sum += child['data']['value'] * child['sign']
-            computed_sum_from_computed += child['data']['value'] * child['sign']
-            computed_sum_without_sign += child['data']['value']
+            computed_sum += child["data"]["value"] * child["sign"]
+            computed_sum_from_computed += child["data"]["value"] * child["sign"]
+            computed_sum_without_sign += child["data"]["value"]
 
-    if not math.isnan(tree_item['data']['value']):
-        value = tree_item['data']['value']
+    if not math.isnan(tree_item["data"]["value"]):
+        value = tree_item["data"]["value"]
         if value == 0:
             value = 0.01
         # If official value match computed value from official children's value with less than 0.5% error
-        if (abs((computed_sum - value) / value) < relative_error
-                or abs(computed_sum - value) < absolute_error):
-            tree_item['data']['status'] = "checked"
+        if (
+            abs((computed_sum - value) / value) < relative_error
+            or abs(computed_sum - value) < absolute_error
+        ):
+            tree_item["data"]["status"] = "checked"
             # Fix children values if needed
             if child_missing_count > 0:
-                for child_name in tree_item['children']:
-                    set_to_zero_computed(tree_item['children'][child_name])
+                for child_name in tree_item["children"]:
+                    set_to_zero_computed(tree_item["children"][child_name])
 
         # If official value match computed value from computed children's value with less than 0.5% error
-        elif (abs((computed_sum_from_computed - value) / value) < relative_error
-              or abs(computed_sum_from_computed - value) < absolute_error):
-            tree_item['data']['status'] = "checked"
+        elif (
+            abs((computed_sum_from_computed - value) / value) < relative_error
+            or abs(computed_sum_from_computed - value) < absolute_error
+        ):
+            tree_item["data"]["status"] = "checked"
             # Fix children values if needed
-            for child_name in tree_item['children']:
-                child_data = tree_item['children'][child_name]['data']
-                if math.isnan(child_data['value']):
-                    child_data['status'] = "computed"
-                    if 'computedValue' in child_data:
-                        child_data['value'] = child_data['computedValue']
+            for child_name in tree_item["children"]:
+                child_data = tree_item["children"][child_name]["data"]
+                if math.isnan(child_data["value"]):
+                    child_data["status"] = "computed"
+                    if "computedValue" in child_data:
+                        child_data["value"] = child_data["computedValue"]
                     else:
-                        child_data['value'] = 0
+                        child_data["value"] = 0
 
             computed_sum = computed_sum_from_computed
         # If there is only on value missing from children, set this child's value equal to the computed difference
         elif child_missing_count == 1:
-            for child_name in tree_item['children']:
-                child_data = tree_item['children'][child_name]['data']
+            for child_name in tree_item["children"]:
+                child_data = tree_item["children"][child_name]["data"]
                 if math.isnan(child_data["value"]):
-                    child_data['computedValue'] = (value - computed_sum) / child['sign']
-                    child_data['value'] = child_data['computedValue']
-                    child_data['status'] = "computed"
-                    tree_item['data']['status'] = "checked"
+                    child_data["computedValue"] = (value - computed_sum) / child["sign"]
+                    child_data["value"] = child_data["computedValue"]
+                    child_data["status"] = "computed"
+                    tree_item["data"]["status"] = "checked"
                     break
 
         # If official value match computed value by adding all children's value (no substraction) with less than 0.5% error
-        elif abs((computed_sum_without_sign - value) / value) < relative_error or abs(computed_sum_without_sign - value) < absolute_error:
-            tree_item['data']['status'] = "checked"
+        elif (
+            abs((computed_sum_without_sign - value) / value) < relative_error
+            or abs(computed_sum_without_sign - value) < absolute_error
+        ):
+            tree_item["data"]["status"] = "checked"
             # Fix children sign and/or set to zero missing values if any
-            for child_name in tree_item['children']:
-                flip_sign(tree_item['children'][child_name])
-                set_to_zero_computed(tree_item['children'][child_name])
+            for child_name in tree_item["children"]:
+                flip_sign(tree_item["children"][child_name])
+                set_to_zero_computed(tree_item["children"][child_name])
         elif abs((computed_sum - value) / value) > 100:
-            tree_item['data']['status'] = "error"
+            tree_item["data"]["status"] = "error"
         else:
-            tree_item['data']['status'] = "error"
+            tree_item["data"]["status"] = "error"
 
-    if computed_sum != tree_item['data']['value']:
-        tree_item['data']['computedValue'] = computed_sum_from_computed
+    if computed_sum != tree_item["data"]["value"]:
+        tree_item["data"]["computedValue"] = computed_sum_from_computed
 
 
 def set_to_zero_computed(tree_item):
@@ -158,12 +169,15 @@ def set_to_zero_computed(tree_item):
 
         :param tree_item : item to set to zero
     """
-    if math.isnan(tree_item['data']['value']) and ('computedValue' not in tree_item['data'] or tree_item['data']['computedValue'] == 0):
-        tree_item['data']['value'] = 0
-        tree_item['data']['status'] = "computed"
-        if 'children' in tree_item:
-            for child_name in tree_item['children']:
-                set_to_zero_computed(tree_item['children'][child_name])
+    if math.isnan(tree_item["data"]["value"]) and (
+        "computedValue" not in tree_item["data"]
+        or tree_item["data"]["computedValue"] == 0
+    ):
+        tree_item["data"]["value"] = 0
+        tree_item["data"]["status"] = "computed"
+        if "children" in tree_item:
+            for child_name in tree_item["children"]:
+                set_to_zero_computed(tree_item["children"][child_name])
 
 
 def flip_sign(item):
@@ -172,38 +186,59 @@ def flip_sign(item):
 
         :param item : item to flip
     """
-    if item['sign'] == -1:
-        item['data']['value'] = -item['data']['value']
-        item['data']['status'] = "signFlipped"
+    if item["sign"] == -1:
+        item["data"]["value"] = -item["data"]["value"]
+        item["data"]["status"] = "signFlipped"
+
 
 def gather_data_to_compute(tree, raw):
-    root = tree['children']
-    resultat_avant_impot = root['ResultatAvantImpot']['children']
+    root = tree["children"]
+    resultat_avant_impot = root["ResultatAvantImpot"]["children"]
     result = {
-        "participation" : root['ParticipationSalariesAuxResultats']['data']['value'],
-        "impot" : root['ImpotsSurLesBenefices']['data']['value'],
-        "resultat_exceptionnel" : root['ResultatExceptionnel']['data']['value'],
-        "produits_exceptionnel" : root['ResultatExceptionnel']['children']['ProduitsExceptionnels']['data']['value'],
-        "charges_exceptionnel" : root['ResultatExceptionnel']['children']['ChargesExceptionnelles']['data']['value'],
-        "resultat_financier" : resultat_avant_impot['ResultatFinancier']['data']['value'],
-        "produits_financier" : resultat_avant_impot['ResultatFinancier']['children']['ProduitsFinanciers']['data']['value'],
-        "charges_financier" : resultat_avant_impot['ResultatFinancier']['children']['ChargesFinancieres']['data']['value'],
-        "resultat_exploitation" : resultat_avant_impot['ResultatExploitation']['data']['value'],
-        "produits_exploitation" : resultat_avant_impot['ResultatExploitation']['children']['ProduitsExploitation']['data']['value'],
-        "charges_exploitation" : resultat_avant_impot['ResultatExploitation']['children']['ChargesExploitation']['data']['value'],
+        "participation": root["ParticipationSalariesAuxResultats"]["data"]["value"],
+        "impot": root["ImpotsSurLesBenefices"]["data"]["value"],
+        "resultat_exceptionnel": root["ResultatExceptionnel"]["data"]["value"],
+        "produits_exceptionnel": root["ResultatExceptionnel"]["children"][
+            "ProduitsExceptionnels"
+        ]["data"]["value"],
+        "charges_exceptionnel": root["ResultatExceptionnel"]["children"][
+            "ChargesExceptionnelles"
+        ]["data"]["value"],
+        "resultat_financier": resultat_avant_impot["ResultatFinancier"]["data"][
+            "value"
+        ],
+        "produits_financier": resultat_avant_impot["ResultatFinancier"]["children"][
+            "ProduitsFinanciers"
+        ]["data"]["value"],
+        "charges_financier": resultat_avant_impot["ResultatFinancier"]["children"][
+            "ChargesFinancieres"
+        ]["data"]["value"],
+        "resultat_exploitation": resultat_avant_impot["ResultatExploitation"]["data"][
+            "value"
+        ],
+        "produits_exploitation": resultat_avant_impot["ResultatExploitation"][
+            "children"
+        ]["ProduitsExploitation"]["data"]["value"],
+        "charges_exploitation": resultat_avant_impot["ResultatExploitation"][
+            "children"
+        ]["ChargesExploitation"]["data"]["value"],
     }
 
-    charges = resultat_avant_impot['ResultatExploitation']['children']['ChargesExploitation']
+    charges = resultat_avant_impot["ResultatExploitation"]["children"][
+        "ChargesExploitation"
+    ]
 
-    result["charges"] = charges['data']['value']
-    result["cotisations_sociales"] = charges['children']['ChargesSociales']['data']['value']
-    result["salaires"] = charges['children']['SalairesEtTraitements']['data']['value']
+    result["charges"] = charges["data"]["value"]
+    result["cotisations_sociales"] = charges["children"]["ChargesSociales"]["data"][
+        "value"
+    ]
+    result["salaires"] = charges["children"]["SalairesEtTraitements"]["data"]["value"]
 
-    if "YP" in raw :
+    if "YP" in raw:
         result["effectifs"] = raw["YP"]["value"]
-    elif "376" in raw :
+    elif "376" in raw:
         result["effectifs"] = raw["376"]["value"]
     else:
-        result["effectifs"] = float('nan')
+        result["effectifs"] = float("nan")
 
     return result

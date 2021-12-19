@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===========================================
 Common Fixtures of the enthic package test.
@@ -12,7 +11,7 @@ Coding Rules:
 """
 from json import load
 from logging import error, info
-from subprocess import Popen, TimeoutExpired, PIPE
+from subprocess import PIPE, Popen, TimeoutExpired
 
 import pytest
 
@@ -27,9 +26,21 @@ def execution_in_subprocess(python, configuration_path, python_script):
        :param python_script: Python script to run.
        :return: Return code of the subprocess.
     """
-    process = Popen([python, "-m", "cProfile", "-s", "tottime",
-                     python_script, "-c", configuration_path], cwd='.',
-                    stdout=PIPE, stderr=PIPE)
+    process = Popen(
+        [
+            python,
+            "-m",
+            "cProfile",
+            "-s",
+            "tottime",
+            python_script,
+            "-c",
+            configuration_path,
+        ],
+        cwd=".",
+        stdout=PIPE,
+        stderr=PIPE,
+    )
     try:
         outs, errs = process.communicate(timeout=3600)
     except TimeoutExpired:
@@ -37,9 +48,9 @@ def execution_in_subprocess(python, configuration_path, python_script):
         outs, errs = process.communicate()
     ############################################################################
     # PRINT ONLY IF NOT EMPTY
-    if outs != b'':
+    if outs != b"":
         info(outs.decode())
-    if errs != b'':
+    if errs != b"":
         error(errs.decode())
     return process.returncode
 

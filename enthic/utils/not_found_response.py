@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 =============================
 Not found JSON response Class
@@ -27,10 +26,14 @@ class NotFoundJSONResponse(JSONResponse):
         """
         Constructor of the NotFoundJSONResponse class.
         """
-        JSONResponse.__init__(self, {
-            "@context": "http://www.w3.org/ns/hydra/context.jsonld",
-            "@type": "Error",
-            "@id": request.full_path,
-            "title": "Not found",
-            "description": "No information found on that company"
-        }, status=404)
+        JSONResponse.__init__(
+            self,
+            {
+                "@context": "http://www.w3.org/ns/hydra/context.jsonld",
+                "@type": "Error",
+                "@id": request.full_path,
+                "title": "Not found",
+                "description": "No information found on that company",
+            },
+            status=404,
+        )

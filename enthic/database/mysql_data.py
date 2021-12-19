@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===============
 SQL data object
@@ -12,9 +11,10 @@ Coding Rules:
 - Only argument is configuration file.
 - No output or print, just log and files.
 """
+from flask import abort
+
 from enthic.database.fetch import fetchall
 from enthic.utils.not_found_response import NotFoundJSONResponse
-from flask import abort
 
 
 class SQLData:

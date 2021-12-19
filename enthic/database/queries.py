@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===================================
 Useful queries on the MySQL database
@@ -21,7 +20,13 @@ def pre_cast_integer(probe):
 
        :param probe: SQL probe to cast or not.
     """
-    return str(probe) if probe.__class__ is int else probe if probe.isnumeric() is True else None
+    return (
+        str(probe)
+        if probe.__class__ is int
+        else probe
+        if probe.isnumeric() is True
+        else None
+    )
 
 
 def query_companies(probe, limit, ape_code=[], offset=0):
@@ -33,31 +38,44 @@ def query_companies(probe, limit, ape_code=[], offset=0):
        :param ape_code: List of APE codes to match or None
        :param offset: Integer, offset of the select SQL request.
     """
-    sql_query_select_part = "SELECT siren, denomination, ape, postal_code, town FROM identity"
+    sql_query_select_part = (
+        "SELECT siren, denomination, ape, postal_code, town FROM identity"
+    )
     sql_query_count = "SELECT COUNT(*) FROM identity"
 
-    sql_query_probe_condition = '1'
+    sql_query_probe_condition = "1"
     sql_arguments = {}
     if probe:
         sql_query_probe_condition = "denomination LIKE %(probe)s OR MATCH(denomination) AGAINST (%(probe)s IN NATURAL LANGUAGE MODE)"
-        sql_arguments['probe'] = str(probe) + '%'
+        sql_arguments["probe"] = str(probe) + "%"
         # If probe is an interger, it might be a siren number, so we add this condition to the query
         if pre_cast_integer(probe):
-            sql_query_probe_condition = "siren = %(siren)s OR " + sql_query_probe_condition
-            sql_arguments['siren'] = int(probe)
+            sql_query_probe_condition = (
+                "siren = %(siren)s OR " + sql_query_probe_condition
+            )
+            sql_arguments["siren"] = int(probe)
 
     sql_query_ape_code_condition = "1"
     if len(ape_code) > 1:
-        sql_query_ape_code_condition = "ape IN {}".format(tuple(ape_code))
+        sql_query_ape_code_condition = f"ape IN {tuple(ape_code)}"
     elif len(ape_code) == 1:
-        sql_query_ape_code_condition = "ape = {}".format(ape_code[0])
+        sql_query_ape_code_condition = f"ape = {ape_code[0]}"
 
-    sql_query_condition = " WHERE (" + sql_query_probe_condition + ") AND (" + sql_query_ape_code_condition + ") "
-    sql_query_limit_and_offset = " LIMIT {} OFFSET {};".format(limit, offset)
+    sql_query_condition = (
+        " WHERE ("
+        + sql_query_probe_condition
+        + ") AND ("
+        + sql_query_ape_code_condition
+        + ") "
+    )
+    sql_query_limit_and_offset = f" LIMIT {limit} OFFSET {offset};"
 
     with application.app_context():
         count = fetchall(sql_query_count + sql_query_condition, args=sql_arguments)
-        companies = fetchall(sql_query_select_part + sql_query_condition + sql_query_limit_and_offset, args=sql_arguments)
+        companies = fetchall(
+            sql_query_select_part + sql_query_condition + sql_query_limit_and_offset,
+            args=sql_arguments,
+        )
 
     return (count[0][0], companies)
 
@@ -70,10 +88,13 @@ def query_siren(first_letters):
 
         :return: list of siren number of companies found
     """
-    first_letters += '%'
+    first_letters += "%"
     with application.app_context():
-        siren_list = fetchall("""SELECT siren
+        siren_list = fetchall(
+            """SELECT siren
                         FROM identity
-                        WHERE denomination LIKE %s LIMIT 1000000""", (first_letters,))
+                        WHERE denomination LIKE %s LIMIT 1000000""",
+            (first_letters,),
+        )
 
     return siren_list

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 =============================================================
 Class representing a company, constructed with a denomination
@@ -14,10 +13,10 @@ Coding Rules:
 """
 
 from enthic.company.company import (
-    YearCompany,
-    UniqueBundleCompany,
+    DenominationCompany,
     MultipleBundleCompany,
-    DenominationCompany
+    UniqueBundleCompany,
+    YearCompany,
 )
 
 
@@ -34,13 +33,17 @@ class AllDenominationCompany(MultipleBundleCompany, DenominationCompany):
            :param denomination: The official denomination of the company.
         """
         DenominationCompany.__init__(self, denomination)
-        MultipleBundleCompany.__init__(self, """
+        MultipleBundleCompany.__init__(
+            self,
+            """
             SELECT identity.siren, denomination, ape, postal_code, town,
                 accountability, bundle, declaration, amount
             FROM identity LEFT JOIN bundle
             ON bundle.siren = identity.siren
             WHERE identity.denomination = %s
-            GROUP BY identity.siren, accountability, bundle.bundle, declaration, amount;""", (self.denomination,))
+            GROUP BY identity.siren, accountability, bundle.bundle, declaration, amount;""",
+            (self.denomination,),
+        )
 
 
 class AverageDenominationCompany(UniqueBundleCompany, DenominationCompany):
@@ -56,13 +59,17 @@ class AverageDenominationCompany(UniqueBundleCompany, DenominationCompany):
            :param denomination: The official denomination of the company.
         """
         DenominationCompany.__init__(self, denomination)
-        UniqueBundleCompany.__init__(self, """
+        UniqueBundleCompany.__init__(
+            self,
+            """
             SELECT identity.siren, denomination, ape, postal_code, town,
                 accountability, bundle, "average", AVG(amount)
             FROM identity LEFT JOIN bundle
             ON bundle.siren = identity.siren
             WHERE identity.denomination = %s
-            GROUP BY identity.siren, accountability, bundle.bundle;""", (self.denomination,))
+            GROUP BY identity.siren, accountability, bundle.bundle;""",
+            (self.denomination,),
+        )
 
 
 class YearDenominationCompany(YearCompany, UniqueBundleCompany, DenominationCompany):
@@ -81,10 +88,14 @@ class YearDenominationCompany(YearCompany, UniqueBundleCompany, DenominationComp
         """
         DenominationCompany.__init__(self, denomination)
         YearCompany.__init__(self, year)
-        UniqueBundleCompany.__init__(self, """
+        UniqueBundleCompany.__init__(
+            self,
+            """
             SELECT identity.siren, denomination, ape, postal_code, town,
                 accountability, bundle, %s, amount
             FROM identity LEFT JOIN bundle
             ON bundle.siren = identity.siren
             WHERE identity.denomination = %s
-            AND declaration = %s;""", (self.year, self.denomination, self.year))
+            AND declaration = %s;""",
+            (self.year, self.denomination, self.year),
+        )

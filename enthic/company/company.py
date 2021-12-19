@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ============================================================
 Generic classes representing a company and their function(s)
@@ -14,15 +13,22 @@ Coding Rules:
 """
 
 from re import compile
+
 from flask import abort
 
 from enthic.database.fetch import fetchall
 from enthic.database.mysql_data import SQLData
-from enthic.ontology import ONTOLOGY, APE_CODE, CODE_MOTIF, CODE_CONFIDENTIALITE, INFO_TRAITEMENT, SCORE_DESCRIPTION
+from enthic.ontology import (
+    APE_CODE,
+    CODE_CONFIDENTIALITE,
+    CODE_MOTIF,
+    INFO_TRAITEMENT,
+    ONTOLOGY,
+    SCORE_DESCRIPTION,
+)
 from enthic.utils.error_json_response import ErrorJSONResponse
 from enthic.utils.INPI_data_enhancer import decrypt_code_motif
 from enthic.utils.ok_json_response import OKJSONResponse
-
 
 year_re = compile(r"^\d{4}$")  # REGEX OF A YEAR
 denomination_re = compile(r"^.*$")  # TODO: DEFINE A SAFER REGEX FOR DENOMINATION
@@ -32,6 +38,7 @@ class JSONGenKey:
     """
     Generic keys found in the JSON response
     """
+
     VALUE = "value"
     DESCRIPTION = "description"
     ACCOUNT = "account"
@@ -43,7 +50,7 @@ class YearCompany:
     Company data for a given year.
     """
 
-    __slots__ = ('year',)
+    __slots__ = ("year",)
 
     def __init__(self, year):
         """
@@ -94,7 +101,7 @@ class SirenCompany:
             abort(ErrorJSONResponse("SIREN not between 0 and 1000000000 (excluded)"))
 
 
-class CompanyIdentity():
+class CompanyIdentity:
     """
     Identity data of the Company.
     """
@@ -106,21 +113,37 @@ class CompanyIdentity():
            :param args: a tuple coming SQL result, each result being
               [[bundle, calculation, amount]...].
         """
-        self.siren = {JSONGenKey.VALUE: "%09d" % args[0], JSONGenKey.DESCRIPTION: "SIREN"}
-        self.denomination = {JSONGenKey.VALUE: args[1], JSONGenKey.DESCRIPTION: "Dénomination"}
+        self.siren = {
+            JSONGenKey.VALUE: "%09d" % args[0],
+            JSONGenKey.DESCRIPTION: "SIREN",
+        }
+        self.denomination = {
+            JSONGenKey.VALUE: args[1],
+            JSONGenKey.DESCRIPTION: "Dénomination",
+        }
         try:
-            self.ape = {JSONGenKey.VALUE: APE_CODE[args[2]][1] + " (" + str(APE_CODE[args[2]][0]) + ")",
-                        JSONGenKey.DESCRIPTION: "Code Activité Principale Exercée (NAF)",
-                        JSONGenKey.CODE: APE_CODE[args[2]][0]}
+            self.ape = {
+                JSONGenKey.VALUE: APE_CODE[args[2]][1]
+                + " ("
+                + str(APE_CODE[args[2]][0])
+                + ")",
+                JSONGenKey.DESCRIPTION: "Code Activité Principale Exercée (NAF)",
+                JSONGenKey.CODE: APE_CODE[args[2]][0],
+            }
         except KeyError:
-            self.ape = {JSONGenKey.VALUE: "{}, Code APE inconnu".format(args[2]),
-                        JSONGenKey.DESCRIPTION: "Code Activité Principale Exercée (NAF)"}
-        self.postal_code = {JSONGenKey.VALUE: args[3], JSONGenKey.DESCRIPTION: "Code Postal"}
+            self.ape = {
+                JSONGenKey.VALUE: f"{args[2]}, Code APE inconnu",
+                JSONGenKey.DESCRIPTION: "Code Activité Principale Exercée (NAF)",
+            }
+        self.postal_code = {
+            JSONGenKey.VALUE: args[3],
+            JSONGenKey.DESCRIPTION: "Code Postal",
+        }
         self.town = {JSONGenKey.VALUE: args[4], JSONGenKey.DESCRIPTION: "Commune"}
         self.devise = {JSONGenKey.VALUE: "Euro", JSONGenKey.DESCRIPTION: "Devise"}
 
 
-class Bundle():
+class Bundle:
     """
     All the bundle declared and scoring of a company. Can be several year, one
     or average
@@ -142,23 +165,30 @@ class Bundle():
             str_declaration = str(declaration)
             if hasattr(self, str_declaration) is True:
                 att_declaration = object.__getattribute__(self, str_declaration)
-                att_declaration[ONTOLOGY["accounting"][int_account]["code"][int_bundle][0]] = {
-                        JSONGenKey.ACCOUNT: ONTOLOGY["accounting"][int_account][1],
-                        JSONGenKey.VALUE: amount,
-                        JSONGenKey.DESCRIPTION:
-                            ONTOLOGY["accounting"][int_account]["code"][int_bundle][
-                                1]
-                    }
+                att_declaration[
+                    ONTOLOGY["accounting"][int_account]["code"][int_bundle][0]
+                ] = {
+                    JSONGenKey.ACCOUNT: ONTOLOGY["accounting"][int_account][1],
+                    JSONGenKey.VALUE: amount,
+                    JSONGenKey.DESCRIPTION: ONTOLOGY["accounting"][int_account]["code"][
+                        int_bundle
+                    ][1],
+                }
             else:
-                setattr(self, str_declaration, {
-                    ONTOLOGY["accounting"][int_account]["code"][int_bundle][0]: {
-                        JSONGenKey.ACCOUNT: ONTOLOGY["accounting"][int_account][1],
-                        JSONGenKey.VALUE: amount,
-                        JSONGenKey.DESCRIPTION:
-                            ONTOLOGY["accounting"][int_account]["code"][int_bundle][
-                                1]
-                    }
-                })
+                setattr(
+                    self,
+                    str_declaration,
+                    {
+                        ONTOLOGY["accounting"][int_account]["code"][int_bundle][0]: {
+                            JSONGenKey.ACCOUNT: ONTOLOGY["accounting"][int_account][1],
+                            JSONGenKey.VALUE: amount,
+                            JSONGenKey.DESCRIPTION: ONTOLOGY["accounting"][int_account][
+                                "code"
+                            ][int_bundle][1],
+                        }
+                    },
+                )
+
 
 def get_accountability_metadata(siren):
     """
@@ -173,29 +203,31 @@ def get_accountability_metadata(siren):
         WHERE siren = %s"""
     raw_results = fetchall(sql_request, (siren,))
 
-    pretty_results =  {}
+    pretty_results = {}
     for declaration, code_motif, code_confidentialite, info_traitement in raw_results:
         str_year = str(declaration)
         decrypted_code_motif = decrypt_code_motif(code_motif)
         pretty_results[str_year] = {
-            "code_motif" : {
-                JSONGenKey.VALUE: decrypted_code_motif
-            },
-            "code_confidentialite" : {
+            "code_motif": {JSONGenKey.VALUE: decrypted_code_motif},
+            "code_confidentialite": {
                 JSONGenKey.VALUE: code_confidentialite,
-                JSONGenKey.DESCRIPTION:CODE_CONFIDENTIALITE[code_confidentialite]
-            }
+                JSONGenKey.DESCRIPTION: CODE_CONFIDENTIALITE[code_confidentialite],
+            },
         }
 
         if decrypted_code_motif in CODE_MOTIF:
-            pretty_results[str_year]["code_motif"][JSONGenKey.DESCRIPTION] = CODE_MOTIF[decrypted_code_motif]
+            pretty_results[str_year]["code_motif"][JSONGenKey.DESCRIPTION] = CODE_MOTIF[
+                decrypted_code_motif
+            ]
 
-        if info_traitement != "rien" :
+        if info_traitement != "rien":
             pretty_results[str_year]["info_traitement"] = {
                 JSONGenKey.VALUE: info_traitement
             }
             if info_traitement in INFO_TRAITEMENT:
-                pretty_results[str_year]["info_traitement"][JSONGenKey.DESCRIPTION] = INFO_TRAITEMENT[info_traitement]
+                pretty_results[str_year]["info_traitement"][
+                    JSONGenKey.DESCRIPTION
+                ] = INFO_TRAITEMENT[info_traitement]
 
     return pretty_results
 
@@ -213,15 +245,13 @@ def get_company_annual_stats(siren):
         WHERE annual_statistics.siren = %s;"""
     raw_results = fetchall(sql_request, (siren,))
 
-    pretty_results =  {}
+    pretty_results = {}
     for declaration, value, stats_type in raw_results:
         str_year = str(declaration)
-        if not str_year in pretty_results :
+        if not str_year in pretty_results:
             pretty_results[str_year] = {}
 
-        pretty_results[str_year][stats_type] = {
-                JSONGenKey.VALUE : value
-            }
+        pretty_results[str_year][stats_type] = {JSONGenKey.VALUE: value}
         pretty_results[str_year][stats_type].update(SCORE_DESCRIPTION[stats_type])
     return pretty_results
 
@@ -234,60 +264,69 @@ class UniqueBundleCompany(OKJSONResponse, SQLData):
 
     def __init__(self, sql_request, args):
         """
-        Constructor assigning CompanyIdentity and only Bundle
+            Constructor assigning CompanyIdentity and only Bundle
 
-           :param sql_request: SQL request of the Company data to execute as a string.
+               :param sql_request: SQL request of the Company data to execute as a string.
 
-    .. code-block:: json
+        .. code-block:: json
 
-        {
-            "siren": {
-                "value": "005420120",
-                "description": "SIREN"
-            },
-            "denomination": {
-                "value": "STE DES SUCRERIES DU MARQUENTERRE",
-                "description": "Dénomination"
-            },
-            "ape": {
-                "value": "Activités des sièes sociaux",
-                "description": "Code Activité Principale Exercée (NAF)"
-            },
-            "postal_code": {
-                "value": "62140",
-                "description": "Code Postal"
-            },
-            "town": {
-                "value": "MARCONNELLE",
-                "description": "Commune"
-            },
-            "devise": {
-                "value": "Euro",
-                "description": "Devise"
-            },
-            "financial_data": {
-                "di": {
-                    "account": "Compte annuel complet",
-                    "value": -261053.0,
-                    "description": "Résultat de l\u2019exercice (bénéfice ou perte)"
+            {
+                "siren": {
+                    "value": "005420120",
+                    "description": "SIREN"
                 },
-                "fs": {
-                    "account": "Compte annuel complet",
-                    "value": 11836.0,
-                    "description": "Achats de marchandises (y compris droits de douane)"
+                "denomination": {
+                    "value": "STE DES SUCRERIES DU MARQUENTERRE",
+                    "description": "Dénomination"
+                },
+                "ape": {
+                    "value": "Activités des sièes sociaux",
+                    "description": "Code Activité Principale Exercée (NAF)"
+                },
+                "postal_code": {
+                    "value": "62140",
+                    "description": "Code Postal"
+                },
+                "town": {
+                    "value": "MARCONNELLE",
+                    "description": "Commune"
+                },
+                "devise": {
+                    "value": "Euro",
+                    "description": "Devise"
+                },
+                "financial_data": {
+                    "di": {
+                        "account": "Compte annuel complet",
+                        "value": -261053.0,
+                        "description": "Résultat de l\u2019exercice (bénéfice ou perte)"
+                    },
+                    "fs": {
+                        "account": "Compte annuel complet",
+                        "value": 11836.0,
+                        "description": "Achats de marchandises (y compris droits de douane)"
+                    }
                 }
             }
-        }
         """
         SQLData.__init__(self, sql_request, args)
         if None in self.sql_results[0]:
-            OKJSONResponse.__init__(self, CompanyIdentity(*self.sql_results[0][:5]).__dict__)
+            OKJSONResponse.__init__(
+                self, CompanyIdentity(*self.sql_results[0][:5]).__dict__
+            )
 
         else:
-            OKJSONResponse.__init__(self, {**CompanyIdentity(*self.sql_results[0][:5]).__dict__,
-                                           **{"financial_data": Bundle(*[bundle[5:] for bundle in
-                                                                         self.sql_results]).__dict__[
-                                               self.sql_results[0][7]]}})
+            OKJSONResponse.__init__(
+                self,
+                {
+                    **CompanyIdentity(*self.sql_results[0][:5]).__dict__,
+                    **{
+                        "financial_data": Bundle(
+                            *[bundle[5:] for bundle in self.sql_results]
+                        ).__dict__[self.sql_results[0][7]]
+                    },
+                },
+            )
 
 
 class MultipleBundleCompany(OKJSONResponse, SQLData):
@@ -335,7 +374,8 @@ class MultipleBundleCompany(OKJSONResponse, SQLData):
             ]
         }
     """
-    __slots__ = ('declarations',)
+
+    __slots__ = ("declarations",)
 
     def __init__(self, sql_request, args):
         """
@@ -357,7 +397,7 @@ class MultipleBundleCompany(OKJSONResponse, SQLData):
                 if year in self.declarations["declarations"]:
                     self.declarations["declarations"][year]["statistics"] = statsdata
                 else:
-                    self.declarations["declarations"][year] = { "statistics" : statsdata}
+                    self.declarations["declarations"][year] = {"statistics": statsdata}
 
         # Add metadata to company's data structure
         accountability_metadata = get_accountability_metadata(self.sql_results[0][0])
@@ -365,7 +405,9 @@ class MultipleBundleCompany(OKJSONResponse, SQLData):
             if year in self.declarations["declarations"]:
                 self.declarations["declarations"][year]["metadata"] = metadata
             else:
-                self.declarations["declarations"][year] = { "metadata" : metadata}
+                self.declarations["declarations"][year] = {"metadata": metadata}
 
-        OKJSONResponse.__init__(self, {**CompanyIdentity(*self.sql_results[0][:7]).__dict__,
-                                       **self.declarations})
+        OKJSONResponse.__init__(
+            self,
+            {**CompanyIdentity(*self.sql_results[0][:7]).__dict__, **self.declarations},
+        )

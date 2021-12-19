@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===================================
 Fetch results on the MySQL database
@@ -25,6 +24,7 @@ def get_results(request, args, sql_func):
     """
     with application.app_context():
         from enthic.database.mysql import mysql
+
         cur = mysql.connection.cursor()
         cur.execute(request, args)
         fetch_func = getattr(cur, sql_func)

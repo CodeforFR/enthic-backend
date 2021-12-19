@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===================
 JSON response Class
@@ -31,13 +30,15 @@ class JSONResponse(Response):
            :param status: Default is 200.
            :raise TypeError: If argument not a dict, list or tuple.
         """
-        if object_response.__class__ is dict \
-                or object_response.__class__ is list \
-                or object_response.__class__ is tuple:
-            Response.__init__(self, dumps(object_response),
-                              status=status, mimetype='application/json'
-                              )
+        if (
+            object_response.__class__ is dict
+            or object_response.__class__ is list
+            or object_response.__class__ is tuple
+        ):
+            Response.__init__(
+                self, dumps(object_response), status=status, mimetype="application/json"
+            )
         else:
             raise TypeError(
-                'OKJSONResponse CLASS CONSTRUCTOR ARGUMENT MUST BE A dict, list or tuple.'
+                "OKJSONResponse CLASS CONSTRUCTOR ARGUMENT MUST BE A dict, list or tuple."
             )

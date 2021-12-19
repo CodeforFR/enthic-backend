@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ==========================
 Flask MySQL initialisation
@@ -12,8 +11,9 @@ Coding Rules:
 - Only argument is configuration file.
 - No output or print, just log and files.
 """
-from flask_mysqldb import MySQL
 from flask import current_app as application
+from flask_mysqldb import MySQL
+
 try:
     mysql = MySQL(application)
 except RuntimeError:

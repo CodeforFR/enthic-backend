@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===============================================================================
 Set of function converting the ontology from INPI format to base integer format
