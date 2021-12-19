@@ -107,3 +107,5 @@ python/dist/
 python/enthic/static/documentation/
 *.pyc
 .python-version
+nohup.out
+notebooks
