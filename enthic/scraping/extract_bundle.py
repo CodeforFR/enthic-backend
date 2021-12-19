@@ -1,17 +1,3 @@
-"""
-=======================================================
-Parse all the XML available to list all the bundle code
-=======================================================
-
-PROGRAM BY PAPIT SASU, 2019
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
-import codecs
 import datetime
 import json
 import os
@@ -22,14 +8,11 @@ from io import BytesIO
 from logging import basicConfig, debug, info
 from os import listdir
 from os.path import dirname, isdir, join
-from pathlib import Path
 from pprint import pprint
 from re import compile, sub
 from zipfile import BadZipFile, ZipFile
 
 import requests
-import sqlalchemy
-from sqlalchemy import select
 
 from enthic.utils.conversion import CON_ACC, CON_APE, CON_BUN
 from enthic.utils.INPI_data_enhancer import decrypt_code_motif
@@ -43,7 +26,6 @@ from .database_requests_utils import (
     save_bundle_to_database,
     save_company_to_database,
     save_metadata_ORM,
-    save_metadata_to_database,
     sum_bundle_into_database,
 )
 
@@ -178,7 +160,7 @@ def get_siren_data_from_insee_api(siren):
     denomination = content["uniteLegale"]["periodesUniteLegale"][0][
         "denominationUniteLegale"
     ]
-    if denomination == None:
+    if denomination is None:
         denomination = (
             content["uniteLegale"]["prenomUsuelUniteLegale"]
             + " "
@@ -819,7 +801,7 @@ def read_identity_data(identity_xml_item, xml_file_name):
                 ape_from_insee = None
                 try:
                     dummy, ape_from_insee = get_siren_data_from_insee_api(siren)
-                except TypeError as e:
+                except TypeError:
                     print(
                         "Le numéro siren", siren, "n'est pas dispo via l'API de l'INSEE"
                     )
@@ -906,7 +888,7 @@ def process_xml_file(xml_stream, xml_name):
             ############################################
             # WRITE IDENTITY FILE IF ACCOUNT TYPE IS
             # KNOWN
-            if not acc_type in ACC_ONT.keys():
+            if acc_type not in ACC_ONT.keys():
                 return False
             existing_metadata_list = get_metadata(siren)
             new_metadata = AccountabilityMetadata(

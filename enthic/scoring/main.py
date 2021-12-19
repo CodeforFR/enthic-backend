@@ -71,7 +71,7 @@ def get_percentiles(real_ape, year=None, score=None):
         try:
             statistics[row[0]][row[1]]["percentiles"][row[2]] = row[3]
             statistics[row[0]][row[1]]["total_count"] = row[4]
-        except KeyError as error:  # Error because corresponding year was not intialized in 'statistics'
+        except KeyError:  # Error because corresponding year was not intialized in 'statistics'
             statistics[row[0]] = deepcopy(year_data)
             statistics[row[0]][row[1]]["percentiles"][row[2]] = row[3]
             statistics[row[0]][row[1]]["total_count"] = row[4]

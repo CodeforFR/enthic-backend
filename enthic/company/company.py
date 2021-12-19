@@ -1,17 +1,3 @@
-"""
-============================================================
-Generic classes representing a company and their function(s)
-============================================================
-
-PROGRAM BY PAPIT SASU, 2020
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
-
 from re import compile
 
 from flask import abort
@@ -248,7 +234,7 @@ def get_company_annual_stats(siren):
     pretty_results = {}
     for declaration, value, stats_type in raw_results:
         str_year = str(declaration)
-        if not str_year in pretty_results:
+        if str_year not in pretty_results:
             pretty_results[str_year] = {}
 
         pretty_results[str_year][stats_type] = {JSONGenKey.VALUE: value}

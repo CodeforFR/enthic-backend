@@ -21,16 +21,7 @@ from flask import Flask, request, send_file
 from flask_cors import CORS
 
 from enthic.company.company import CompanyIdentity
-from enthic.company.denomination_company import (
-    AllDenominationCompany,
-    AverageDenominationCompany,
-    YearDenominationCompany,
-)
-from enthic.company.siren_company import (
-    AllSirenCompany,
-    AverageSirenCompany,
-    YearSirenCompany,
-)
+from enthic.company.siren_company import AllSirenCompany, YearSirenCompany
 from enthic.csv.utils import (
     convert_to_csv_stream,
     get_financial_data_by_ape,
@@ -573,7 +564,7 @@ def compute_ape(real_ape, year=None, score=None):
     for score_line in sql_result:
         try:
             dict_scores[score_line[0]][score_line[1]].append(score_line[2])
-        except KeyError as error:  # Error because corresponding year was not intialized in 'statistics'
+        except KeyError:  # Error because corresponding year was not intialized in 'statistics'
             dict_scores[score_line[0]][score_line[1]] = []
             dict_scores[score_line[0]][score_line[1]].append(score_line[2])
 

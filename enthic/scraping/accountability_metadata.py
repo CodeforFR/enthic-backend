@@ -1,32 +1,7 @@
-"""
-========================================
-========================================
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
-
 import datetime
-import os
-import shutil
-import subprocess
-import sys
-import urllib
-from argparse import ArgumentParser
 from enum import Enum, auto
-from ftplib import FTP_TLS
-from glob import glob
-from io import BytesIO
-from json import load
-from logging import error, info
-from os.path import abspath, basename, dirname, getsize, join, pardir
 
-import wget
-from py7zr import SevenZipFile
-from sqlalchemy import Column, Date, Integer, String, create_engine
+from sqlalchemy import Column, Date, Integer, String
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -208,7 +183,7 @@ class AccountabilityMetadata(Base):
             return True
         if metadata_from_bdd[4] in ["1", "1A"]:
             return False
-        if not self.code_motif in ERROR_CODE_MOTIF:
+        if self.code_motif not in ERROR_CODE_MOTIF:
             print("code motif inconnu pour", self)
             exit()
         return False

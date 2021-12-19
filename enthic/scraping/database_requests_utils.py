@@ -1,38 +1,13 @@
-"""
-========================================
-Download daily zip files from INPI's FTP
-========================================
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
-
-import os
-import shutil
-import subprocess
-import sys
-import urllib
-from argparse import ArgumentParser
-from ftplib import FTP_TLS
-from glob import glob
-from io import BytesIO
 from json import load
-from logging import error, info
-from os.path import abspath, basename, dirname, getsize, join, pardir
+from logging import info
+from os.path import dirname, join
 
-import wget
-from py7zr import SevenZipFile
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from .accountability_metadata import AccountabilityMetadata
 from .bundle_ORM import Bundle
 
-################################################################################
-# READ CONFIGURATION
 with open(
     join(dirname(__file__), "../", "configuration.json")
 ) as json_configuration_file:

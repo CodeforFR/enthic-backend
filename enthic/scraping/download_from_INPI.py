@@ -1,12 +1,5 @@
-"""
-========================================
-Download daily zip files from INPI's FTP
-========================================
-"""
-
 import os
 import shutil
-import subprocess
 import sys
 import urllib
 from argparse import ArgumentParser
@@ -14,13 +7,12 @@ from ftplib import FTP_TLS
 from glob import glob
 from io import BytesIO
 from json import load
-from logging import error, info
-from os.path import abspath, basename, dirname, getsize, join, pardir
+from logging import info
+from os.path import basename, dirname, getsize, join
 
 import wget
 from py7zr import SevenZipFile
 
-from .database_requests_utils import get_existing_metadata
 from .extract_bundle import process_daily_zip_file, process_xml_file
 
 ################################################################################
@@ -131,7 +123,7 @@ def explore_and_process_CQuest_mirror():
                         with SevenZipFile(localfile_path, mode="r") as z:
                             info("Extracting 7z archive")
                             z.extractall(path=CONFIG["inputPath"])
-                    except OSError as error:
+                    except OSError:
                         print("Fichier 7z vide?")
                         continue
                     for filename in os.listdir(join(CONFIG["inputPath"], "comptes/")):

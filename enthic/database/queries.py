@@ -1,15 +1,4 @@
-"""
-===================================
-Useful queries on the MySQL database
-===================================
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
-
+from enthic.app import application
 from enthic.database.fetch import fetchall
 
 

@@ -1,20 +1,8 @@
-"""
-===================================
-Python script to compute indicators
-===================================
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
 from argparse import ArgumentParser
 from json import loads
 
 from requests import get
 
-from enthic.ontology import SCORE_DESCRIPTION
 from enthic.utils.conversion import CON_APE
 
 
