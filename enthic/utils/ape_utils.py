@@ -1,28 +1,15 @@
 import re
 
-from enthic.ontology import APE_CODE, ONTOLOGY
+from enthic.ontology import APE_CODE
+from enthic.utils.json_response import JSONGenKey
 
 # CREATE DICTIONARY WHERE keys ARE 'official APE code' AND values ARE 'enthic APE code'
-CON_APE = {}
+APE_CONVERSION = {}
 for key, value in APE_CODE.items():
-    CON_APE[value[0]] = key
-
-# CREATE DICTIONARY FROM ONTOLOGY TO CONVERT str TO int
-CON_ACC = {}
-for key, value in ONTOLOGY["accounting"].items():
-    CON_ACC[value[0]] = key
-
-CON_BUN = {}
-for key, value in ONTOLOGY["accounting"].items():
-    CON_BUN[key] = {}
-    for int_bundle, dict_bun in value["code"].items():
-        try:
-            CON_BUN[key][dict_bun[0]] = int_bundle
-        except KeyError:
-            continue
+    APE_CONVERSION[value[0]] = key
 
 
-def get_corresponding_ape_codes(ape_code):
+def get_corresponding_ape_codes(ape_codes):
     """
     APE codes are not saved in the original format.
     This function returns codes that are in the database
@@ -34,10 +21,24 @@ def get_corresponding_ape_codes(ape_code):
         :return: list of corresponding APE_CODE in database
     """
     result = list()
-    for one_code in ape_code.split(","):
+    for one_code in ape_codes.split(","):
         for i in APE_CODE:
             if re.match(one_code, APE_CODE[i][0]):
                 result.append(i)
     if not result:
         return None
     return result
+
+
+def get_json_ape_description(enthic_ape):
+    try:
+        return {
+            JSONGenKey.VALUE: APE_CODE[enthic_ape][1],
+            JSONGenKey.DESCRIPTION: "Code Activité Principale Exercée (NAF)",
+            JSONGenKey.CODE: APE_CODE[enthic_ape][0],
+        }
+    except KeyError:
+        return {
+            JSONGenKey.VALUE: f"{enthic_ape}, Code APE inconnu",
+            JSONGenKey.DESCRIPTION: "Code Activité Principale Exercée (NAF)",
+        }

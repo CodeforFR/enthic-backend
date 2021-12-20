@@ -14,7 +14,8 @@ from zipfile import BadZipFile, ZipFile
 
 import requests
 
-from enthic.utils.conversion import CON_ACC, CON_APE, CON_BUN
+from enthic.utils.ape_utils import APE_CONVERSION
+from enthic.utils.bundle_utils import ACCOUNTING_TYPE_CONVERSION, BUNDLE_CONVERSION
 from enthic.utils.INPI_data_enhancer import decrypt_code_motif
 
 from .accountability_metadata import AccountabilityMetadata, MetadataCase
@@ -791,12 +792,14 @@ def read_identity_data(identity_xml_item, xml_file_name):
             duree_exercice = int(identity.text)
         elif identity.tag == "{fr:inpi:odrncs:bilansSaisisXML}code_activite":
             ape_with_dot = identity.text[:2] + "." + identity.text[2:]
-            if ape_with_dot in CON_APE:  # Find enthic integer from given ape code
-                ape = str(CON_APE[ape_with_dot])
+            if (
+                ape_with_dot in APE_CONVERSION
+            ):  # Find enthic integer from given ape code
+                ape = str(APE_CONVERSION[ape_with_dot])
             elif (
                 ape_with_dot in old_naf_to_new_naf
             ):  # Try to convert given apecode from old naf to new naf
-                ape = str(CON_APE[old_naf_to_new_naf[ape_with_dot]])
+                ape = str(APE_CONVERSION[old_naf_to_new_naf[ape_with_dot]])
             else:  # Try to fetch ape code from INSEE's API
                 ape_from_insee = None
                 try:
@@ -805,15 +808,15 @@ def read_identity_data(identity_xml_item, xml_file_name):
                     print(
                         "Le numéro siren", siren, "n'est pas dispo via l'API de l'INSEE"
                     )
-                if ape_from_insee in CON_APE:
-                    ape = str(CON_APE[ape_from_insee])
+                if ape_from_insee in APE_CONVERSION:
+                    ape = str(APE_CONVERSION[ape_from_insee])
                 elif ape_from_insee in old_naf_to_new_naf:
-                    ape = str(CON_APE[old_naf_to_new_naf[ape_from_insee]])
+                    ape = str(APE_CONVERSION[old_naf_to_new_naf[ape_from_insee]])
                 elif (
                     ape_from_insee in unknown_ape_codes
                     or ape_with_dot in unknown_ape_codes
                 ):
-                    ape = str(CON_APE["00.00"])
+                    ape = str(APE_CONVERSION["00.00"])
                 else:
                     print(
                         "N'a pas pu trouvé le code APE correspondant à celui du XML (",
@@ -948,11 +951,11 @@ def process_xml_file(xml_stream, xml_name):
                                         sum_bundle_into_database(
                                             siren,
                                             str(year),
-                                            str(CON_ACC[acc_type]),
+                                            str(ACCOUNTING_TYPE_CONVERSION[acc_type]),
                                             str(
-                                                CON_BUN[CON_ACC[acc_type]][
-                                                    bundle.attrib["code"]
-                                                ]
+                                                BUNDLE_CONVERSION[
+                                                    ACCOUNTING_TYPE_CONVERSION[acc_type]
+                                                ][bundle.attrib["code"]]
                                             ),
                                             str(int(bundle.attrib[amount_code])),
                                         )
@@ -960,11 +963,11 @@ def process_xml_file(xml_stream, xml_name):
                                         replace_bundle_into_database(
                                             siren,
                                             str(year),
-                                            str(CON_ACC[acc_type]),
+                                            str(ACCOUNTING_TYPE_CONVERSION[acc_type]),
                                             str(
-                                                CON_BUN[CON_ACC[acc_type]][
-                                                    bundle.attrib["code"]
-                                                ]
+                                                BUNDLE_CONVERSION[
+                                                    ACCOUNTING_TYPE_CONVERSION[acc_type]
+                                                ][bundle.attrib["code"]]
                                             ),
                                             str(int(bundle.attrib[amount_code])),
                                             False,
@@ -973,11 +976,11 @@ def process_xml_file(xml_stream, xml_name):
                                         new_bundle = (
                                             siren,
                                             str(year),
-                                            str(CON_ACC[acc_type]),
+                                            str(ACCOUNTING_TYPE_CONVERSION[acc_type]),
                                             str(
-                                                CON_BUN[CON_ACC[acc_type]][
-                                                    bundle.attrib["code"]
-                                                ]
+                                                BUNDLE_CONVERSION[
+                                                    ACCOUNTING_TYPE_CONVERSION[acc_type]
+                                                ][bundle.attrib["code"]]
                                             ),
                                             str(int(bundle.attrib[amount_code])),
                                         )

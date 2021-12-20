@@ -3,6 +3,17 @@ from json import dumps
 from flask import Response
 
 
+class JSONGenKey:
+    """
+    Generic keys found in the JSON response
+    """
+
+    VALUE = "value"
+    DESCRIPTION = "description"
+    ACCOUNT = "account"
+    CODE = "code"
+
+
 class JSONResponse(Response):
     """
     Abstraction on top of the flask Response class, as most Response will be

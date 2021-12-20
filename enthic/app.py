@@ -24,7 +24,11 @@ from enthic.ontology import (
     SCORE_DESCRIPTION,
 )
 from enthic.scoring.main import compute_score, get_percentiles, save_score_in_database
-from enthic.utils.conversion import CON_APE, get_corresponding_ape_codes
+from enthic.utils.ape_utils import (
+    APE_CONVERSION,
+    get_corresponding_ape_codes,
+    get_json_ape_description,
+)
 from enthic.utils.error_json_response import ErrorJSONResponse
 from enthic.utils.ok_json_response import OKJSONResponse
 
@@ -391,6 +395,40 @@ def page_search():
 
 
 @application.route(
+    "/top/<int:bundle_type>/<int:year>/<ape>", methods=["GET"], strict_slashes=False
+)
+@insert_request
+def get_tops(bundle_type, year=None, ape=None):
+    limit = 50
+    response = {
+        "contexte": "top " + str(limit),
+        "annee": year,
+        "sujet": ONTOLOGY["accounting"][0]["code"][bundle_type][1],
+    }
+    sql_args = {"bundle_type": bundle_type, "year": year, "limit": limit}
+    raw_results = fetchall(
+        """
+        SELECT `bundle`.siren, amount, denomination, ape
+        FROM `bundle`
+        INNER JOIN `identity` ON `identity`.`siren` = `bundle`.`siren`
+        WHERE declaration = %(year)s and accountability = 0 and bundle = %(bundle_type)s
+        ORDER BY amount DESC
+        LIMIT %(limit)s;""",
+        sql_args,
+    )
+    response["donnees"] = [
+        {
+            "siren": row[0],
+            "montant": row[1],
+            "denomination": row[2],
+            "ape": get_json_ape_description(row[3]),
+        }
+        for row in raw_results
+    ]
+    return OKJSONResponse(response)
+
+
+@application.route(
     "/statistics/<string:real_ape>/<int:year>/<int:score>",
     methods=["GET"],
     strict_slashes=False,
@@ -568,7 +606,7 @@ def compute_ape(real_ape, year=None, score=None):
                 for percentile in percentiles_needed:
                     new_data.append(
                         {
-                            "ape": CON_APE[real_ape],
+                            "ape": APE_CONVERSION[real_ape],
                             "year": k_year,
                             "score": k_score,
                             "percentile": percentile,

@@ -6,7 +6,7 @@ import pytest
 from requests import delete, get, post, put
 
 from enthic.ontology import SCORE_DESCRIPTION
-from enthic.utils.conversion import CON_APE
+from enthic.utils.ape_utils import APE_CONVERSION
 from enthic.utils.error_json_response import ErrorJSONResponse
 from enthic.utils.json_response import JSONResponse
 from enthic.utils.ok_json_response import OKJSONResponse
@@ -136,7 +136,7 @@ for first_letter in range(97, 123):
 LETTERS_COUPLE_LIST = ["aa", "aba", "abb", "abc", "abd", "abe", "abf"]
 
 APE_YEAR_SCORE_LIST = []
-for ape in CON_APE:
+for ape in APE_CONVERSION:
     for year in range(2010, 2020):
         for score in SCORE_DESCRIPTION:
             APE_YEAR_SCORE_LIST.append((ape, year, score))

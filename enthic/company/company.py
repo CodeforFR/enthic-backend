@@ -5,30 +5,20 @@ from flask import abort
 from enthic.database.fetch import fetchall
 from enthic.database.mysql_data import SQLData
 from enthic.ontology import (
-    APE_CODE,
     CODE_CONFIDENTIALITE,
     CODE_MOTIF,
     INFO_TRAITEMENT,
     ONTOLOGY,
     SCORE_DESCRIPTION,
 )
+from enthic.utils.ape_utils import get_json_ape_description
 from enthic.utils.error_json_response import ErrorJSONResponse
 from enthic.utils.INPI_data_enhancer import decrypt_code_motif
+from enthic.utils.json_response import JSONGenKey
 from enthic.utils.ok_json_response import OKJSONResponse
 
 year_re = compile(r"^\d{4}$")  # REGEX OF A YEAR
 denomination_re = compile(r"^.*$")  # TODO: DEFINE A SAFER REGEX FOR DENOMINATION
-
-
-class JSONGenKey:
-    """
-    Generic keys found in the JSON response
-    """
-
-    VALUE = "value"
-    DESCRIPTION = "description"
-    ACCOUNT = "account"
-    CODE = "code"
 
 
 class YearCompany:
@@ -107,20 +97,7 @@ class CompanyIdentity:
             JSONGenKey.VALUE: args[1],
             JSONGenKey.DESCRIPTION: "Dénomination",
         }
-        try:
-            self.ape = {
-                JSONGenKey.VALUE: APE_CODE[args[2]][1]
-                + " ("
-                + str(APE_CODE[args[2]][0])
-                + ")",
-                JSONGenKey.DESCRIPTION: "Code Activité Principale Exercée (NAF)",
-                JSONGenKey.CODE: APE_CODE[args[2]][0],
-            }
-        except KeyError:
-            self.ape = {
-                JSONGenKey.VALUE: f"{args[2]}, Code APE inconnu",
-                JSONGenKey.DESCRIPTION: "Code Activité Principale Exercée (NAF)",
-            }
+        self.ape = get_json_ape_description(args[2])
         self.postal_code = {
             JSONGenKey.VALUE: args[3],
             JSONGenKey.DESCRIPTION: "Code Postal",
