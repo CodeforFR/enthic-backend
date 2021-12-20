@@ -47,9 +47,9 @@ Change ip for host to "0.0.0.0" for production server
 ---------------------------------------
 Create database, tables and indexes. Then begins to download data from INPI's FTP and loads it into MySQL database.
 
-.. code-block:: python
+.. code-block:: bash
 
-   $ python -m enthics.scraping.download_from_INPI
+   python -m enthics.scraping.download_from_INPI
 
 ***Run API***
 -------------
