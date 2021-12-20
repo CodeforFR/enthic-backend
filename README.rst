@@ -1,85 +1,71 @@
 **French societies accountability extraction and treatment**
 ============================================================
 
-This projects download from open source the financial results of french companies.
-It proposes financial and social indicators to evaluate companies social impact.
-Indicators are available through a web API, documented in swagger.
+Project that treats data from opendata-rncs.inpi.fr. They contain xml
+files of the account declaration of all french societies. The overall project
+is meant to be low-code and open source. Aim to provide ethical indicators on companies.
+Information media is a MySQL database, CSV files, web visualisation and a
+swagger API. The search engine endpoint return a JSON-LD (Hydra) compliant JSON.
+Company JSON cannot conform to JSON-LD Organization type due to lack of data
+(contact for instance).
+Score and indicators are calculated by batch, sql and why not using
+fancy libraries. Help in data treatment to improve scoring would be appreciated.
+Scoring, AI, data scrapping for segmentation.
 
-https://enthic-dataviz.netlify.app
+**Install dependencies and python package**
+-------------------------------------------
 
+Install system wide the following requirements :
+```
+apt-get install pyenv-virtualenv libxml2-utils mysql-server libmariadbclient-dev
+mysql_secure_installation
+```
 
-**Install application**
-------------------------
+Create and activate virtual environment python 3.9.4.
+The package uses [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv).
+```
+make create_environment
+make requirements
+```
 
-Install base dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~
+In production run the following instead :
+```
+pip install -U pip setuptools wheel
+pip install -r requirements/base.txt
+```
 
-Install system wide softwares.
+**Run an instance**
+-------------------
 
-.. code-block:: bash
-
-  apt-get install libxml2-utils mysql-server libmariadbclient-dev
-  mysql_secure_installation
-
-Create and activate virtual environment python3 (only once).
-
-.. code-block:: bash
-
-  make create_environment
-
-
+***Fill configuration file***
+-----------------------------
 Fill the configuration file ``python/enthic/configuration.json`` with correct user/password for Mysql and INPI.
 Change ip for host to "0.0.0.0" for production server
 
 
-Create MySQL database.
-
-.. code-block:: bash
-
-  bash sh/database_creation.sh
-
-For development
-~~~~~~~~~~~~~~~
-
-Install libraries.
-
-.. code-block:: bash
-
-  make dev_requirements
-
-Download the data.
+***Create MySQL database and fill it***
+---------------------------------------
+Create database, tables and indexes. Then begins to download data from INPI's FTP and loads it into MySQL database.
 
 .. code-block:: bash
 
    python -m enthic.scraping.download_from_INPI
 
-Run the API.
+***Run API***
+-------------
+
+A flask REST API can distribute data over the web. Following Swagger standard.
 
 .. code-block:: bash
 
-  python -m enthic.app
-
-Test the project.
-
-.. code-block:: bash
-  pytest
-
-For production
-~~~~~~~~~~~~~~
-
-Install required librairies.
-
-.. code-block:: bash
-
-  . venv/bin/activate
-  pip install -r requirements/prod.txt
+   $ python -m enthic.app
 
 
-Install server configuration.
+Testing
+-------
 
-.. code-block:: bash
+`pytest`
 
-  sudo bash sh/install-server.sh
 
 Generate documentation
 ----------------------

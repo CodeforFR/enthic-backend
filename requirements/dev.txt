@@ -10,3 +10,4 @@ black
 sphinx
 python-lsp-server[all]
 git+https://github.com/tomv564/pyls-mypy.git
+requests-mock
