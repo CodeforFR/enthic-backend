@@ -1,24 +1,11 @@
-"""
-========================================
-Test the data extracted from bundle code
-========================================
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
 from logging import info
 from os.path import join
 
 import pytest
 
-from enthic.conftest import execution_in_subprocess
+from tests.conftest import execution_in_subprocess
 
 
-################################################################################
-# CONFIGURATION
 def test_config(config):
     """
     Test the configuration file.
@@ -33,8 +20,6 @@ def test_config(config):
     assert config["debugLevel"].__class__ is str, "DEBUG LEVEL NOT A STRING"
 
 
-################################################################################
-# EXECUTION, IN CPYTHON 3 AND PYPY VM
 @pytest.fixture()
 def extract_bundle_script():
     """
@@ -72,8 +57,6 @@ def test_execution_pypy(configuration_path, pypy_executable, extract_bundle_scri
     assert rc == 0, "RETURN CODE NOT 0"
 
 
-################################################################################
-# OUTPUT DATA FILES
 @pytest.fixture()
 def result_file(config):
     """

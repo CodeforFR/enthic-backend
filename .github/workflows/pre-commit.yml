@@ -19,3 +19,6 @@ jobs:
     - name: Analysing the code with pre-commit
       run: |
         pre-commit run --all-files
+    - name: Unit tests
+      run: |
+        pytest

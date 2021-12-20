@@ -1,14 +1,3 @@
-"""
-===========================================
-Common Fixtures of the enthic package test.
-===========================================
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
 from json import load
 from logging import error, info
 from subprocess import PIPE, Popen, TimeoutExpired
