@@ -3,7 +3,7 @@ from json import loads
 
 from requests import get
 
-from enthic.utils.conversion import CON_APE
+from enthic.utils.ape_utils import APE_CONVERSION
 
 
 def compute_companies_statistics(host, year, limit, offset):
@@ -52,7 +52,7 @@ def compute_ape_deciles(host, year):
         :param host: API address IP + port
     """
     errors = []
-    for ape in sorted(CON_APE):
+    for ape in sorted(APE_CONVERSION):
         print("percentiles computed for ", ape)
         url = "http://" + host + "/compute/ape/" + ape
         if year:

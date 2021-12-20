@@ -5,14 +5,14 @@ from flask import current_app as application
 
 from enthic.company.company import Bundle
 from enthic.database.fetch import fetchall
-from enthic.ontology import APE_CODE, SCORE_DESCRIPTION
+from enthic.ontology import SCORE_DESCRIPTION
 from enthic.scoring import scoring_functions
 from enthic.scoring.compute_stats import (
     check_tree_data,
     convert_data_to_tree,
     gather_data_to_compute,
 )
-from enthic.utils.conversion import CON_APE
+from enthic.utils.ape_utils import APE_CONVERSION, get_json_ape_description
 
 
 def get_percentiles(real_ape, year=None, score=None):
@@ -23,7 +23,7 @@ def get_percentiles(real_ape, year=None, score=None):
         :param year : year asked for
         :param score : score type asked for
     """
-    sql_args = {"ape": CON_APE[real_ape], "year": year, "score": score}
+    sql_args = {"ape": APE_CONVERSION[real_ape], "year": year, "score": score}
     sql_request = "SELECT declaration, stats_type, percentile, value, count FROM `annual_ape_statistics` WHERE ape = %(ape)s"
     if year:
         sql_request = sql_request + " AND declaration = %(year)s"
@@ -85,11 +85,7 @@ def get_percentiles(real_ape, year=None, score=None):
         del statistics[key]
 
     result = {
-        "ape": {
-            "value": APE_CODE[CON_APE[real_ape]][1],
-            "description": "Code Activité Principale Exercée (NAF)",
-            "code": real_ape,
-        },
+        "ape": get_json_ape_description(APE_CONVERSION[real_ape]),
         "statistics": statistics,
     }
     return result

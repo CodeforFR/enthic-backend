@@ -3,7 +3,7 @@ import csv
 import io
 
 from enthic.database.fetch import fetchall
-from enthic.utils.conversion import get_corresponding_ape_codes
+from enthic.utils.ape_utils import get_corresponding_ape_codes
 
 
 def get_financial_data_by_siren(siren):
