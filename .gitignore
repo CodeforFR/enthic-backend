@@ -110,7 +110,8 @@ python/enthic/static/documentation/
 nohup.out
 notebooks
 .coverage
+.~*
 .env
-data
 .DS_Store
 venv
+*.tmp

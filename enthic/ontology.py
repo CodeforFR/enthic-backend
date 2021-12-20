@@ -1,3 +1,13 @@
+from pathlib import Path
+
+import pandas as pd
+
+
+def read_account():
+    fn = Path(__file__).parents[1] / "references" / "account-ontology.csv"
+    return pd.read_csv(fn, sep=";")
+
+
 ONTOLOGY = {
     "accounting": {
         0: {

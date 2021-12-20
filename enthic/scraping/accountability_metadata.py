@@ -4,6 +4,8 @@ from enum import Enum, auto
 from sqlalchemy import Column, Date, Integer, String
 from sqlalchemy.orm import declarative_base
 
+from enthic.scraping.liasse import Liasse
+
 Base = declarative_base()
 
 ERROR_CODE_MOTIF = [
@@ -202,3 +204,16 @@ class AccountabilityMetadata(Base):
             exit()
         # Les deux sont égaux à 1
         return False
+
+    @classmethod
+    def from_liasse(clf, liasse: Liasse):
+        return clf(
+            siren=liasse["siren"],
+            declaration=liasse["year"],
+            duree_exercice=liasse["duree_exercice"],
+            date_cloture_exercice=liasse["cloture"],
+            code_motif=liasse["code_motif"],
+            code_confidentialite=liasse["code_confidentialite"],
+            info_traitement=liasse["info_traitement"],
+            accountability=liasse["type_bilan"],
+        )

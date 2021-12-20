@@ -1,54 +1,24 @@
-import os
-import shutil
+import logging
 import sys
-import urllib
 from argparse import ArgumentParser
 from ftplib import FTP_TLS
-from glob import glob
-from io import BytesIO
 from json import load
-from logging import info
 from os.path import basename, dirname, getsize, join
 
-import wget
-from py7zr import SevenZipFile
+from ..config import Config
+from .bundles_utils import clean_after_importing
+from .cquest import explore_and_process_CQuest_mirror
+from .extract_bundle import process_daily_zip_file
 
-from .extract_bundle import process_daily_zip_file, process_xml_file
+LOGGER = logging.getLogger(__name__)
 
-################################################################################
-# READ CONFIGURATION
 with open(
     join(dirname(__file__), "../", "configuration.json")
 ) as json_configuration_file:
     CONFIG = load(json_configuration_file)
 
-FTP_MAX_VOLUME = 6 * 1024 * 1024 * 1024  # Default is 6 GigaBytes
 FTP_VOLUME_USED = 0  # Bytes
 IMPORT_HISTORIC = []
-
-
-def clean_after_importing(file_path, date_processed):
-    """
-    Add data contained in the given file into MySQL database
-    then delete temporary files if it's a success
-
-    :param file_path: daily INPI file to add to database
-    """
-
-    try:
-        shutil.rmtree(CONFIG["inputPath"] + "/comptes")
-    except FileNotFoundError:
-        pass
-    files = glob(CONFIG["inputPath"] + "/PUB_CA*")
-    for f in files:
-        os.remove(f)
-
-    os.remove(file_path)
-    IMPORT_HISTORIC.append(date_processed)
-    with open(
-        join(CONFIG["inputPath"], CONFIG["importHistoricFile"]), "a"
-    ) as import_historic_file:
-        import_historic_file.write(date_processed + "\n")
 
 
 def explore_and_process_FTP_folder(folderToExplore):
@@ -58,7 +28,7 @@ def explore_and_process_FTP_folder(folderToExplore):
     :param folderToExplore: folder to explore
     """
     global FTP_VOLUME_USED
-    info("Exploring INPI's FTP folder " + folderToExplore)
+    LOGGER.LOGGER.info("explore_inpi_ftp_folder", {"filename": folderToExplore})
     ftp = FTP_TLS("opendata-rncs.inpi.fr")
     ftp.login(user=CONFIG["INPI"]["user"], passwd=CONFIG["INPI"]["password"])
     ftp.prot_p()
@@ -73,18 +43,20 @@ def explore_and_process_FTP_folder(folderToExplore):
                 : len(daily_zip_date) - 4
             ]  # remove ".zip" filenamepart
             if daily_zip_date in IMPORT_HISTORIC:
-                info("Déjà téléchargé en base")
+                LOGGER.info("Déjà téléchargé en base")
                 continue
-            if FTP_VOLUME_USED > FTP_MAX_VOLUME:
-                info("FTP download volume limit reached, stopping everything")
+            if FTP_VOLUME_USED > Config.FTP_MAX_VOLUME:
+                LOGGER.info("FTP download volume limit reached, stopping everything")
                 sys.exit(3)
             localfile_path = join(CONFIG["inputPath"], basename(element))
             localfile = open(localfile_path, "wb")
-            info("Downloading file " + str(element) + " into file " + localfile_path)
+            LOGGER.info(
+                "Downloading file " + str(element) + " into file " + localfile_path
+            )
             ftp.retrbinary("RETR " + element, localfile.write)
 
             FTP_VOLUME_USED += getsize(localfile_path)
-            info("FTP bandwidth used : " + str(FTP_VOLUME_USED))
+            LOGGER.info("FTP bandwidth used : " + str(FTP_VOLUME_USED))
             print(daily_zip_date)
             # extract data from xml files to csv files
             process_daily_zip_file(localfile_path)
@@ -102,46 +74,10 @@ def explore_and_process_FTP_folder(folderToExplore):
         ftp.quit()
 
 
-def explore_and_process_CQuest_mirror():
-    """
-    Function that explore CQuest mirror to download every daily zip files
-    """
-    for year in range(2017, 2022):
-        url = "http://data.cquest.org/inpi_rncs/comptes/" + str(year) + "/"
-        for month in range(1, 13):
-            for day in range(1, 32):
-                date = str(year) + str(month).zfill(2) + str(day).zfill(2)
-                if date in IMPORT_HISTORIC:
-                    continue
-                file_name = "bilans_saisis_" + date + ".7z"
-                info("downloading : " + url + file_name)
-                localfile_path = join(CONFIG["inputPath"], basename(file_name))
-                try:
-                    wget.download(url + file_name, localfile_path)
-                    print()  # New line after output of wget
-                    try:
-                        with SevenZipFile(localfile_path, mode="r") as z:
-                            info("Extracting 7z archive")
-                            z.extractall(path=CONFIG["inputPath"])
-                    except OSError:
-                        print("Fichier 7z vide?")
-                        continue
-                    for filename in os.listdir(join(CONFIG["inputPath"], "comptes/")):
-                        xml_path = join(CONFIG["inputPath"], "comptes/", filename)
-                        xml_file_opened = open(xml_path, "rb")
-                        bytes_io = BytesIO(xml_file_opened.read())
-                        info("Processing xml " + xml_path)
-                        process_xml_file(bytes_io, filename)
-                    clean_after_importing(localfile_path, date)
-                except urllib.error.HTTPError as error:
-                    print(url + file_name + " doesn't exist : ", error)
-
-
 def parse_args():
     """
     Download INPI's daily file into input folder, as stated in configuration file.
     """
-    global FTP_MAX_VOLUME
     global IMPORT_HISTORIC
 
     parser = ArgumentParser(description="Download data and add it to Enthic database")
@@ -153,29 +89,10 @@ def parse_args():
         required=True,
     )
     parser.add_argument(
-        "--quota",
-        metavar="Quota",
-        type=int,
-        help="Maximum number of Gio that can be download from server",
-    )
-    parser.add_argument(
         "--folder", metavar="Folder", help="FTP folder where download should start"
     )
 
     args = parser.parse_args()
-    if args.quota:
-        FTP_MAX_VOLUME = args.quota * 1024 * 1024 * 1024
-
-    try:
-        with open(
-            join(CONFIG["inputPath"], CONFIG["importHistoricFile"])
-        ) as import_historic_file:
-            for line in import_historic_file:
-                IMPORT_HISTORIC.append(line.strip())
-    except FileNotFoundError:
-        open(
-            join(CONFIG["inputPath"], CONFIG["importHistoricFile"]), "x"
-        )  # Create file
     return args
 
 

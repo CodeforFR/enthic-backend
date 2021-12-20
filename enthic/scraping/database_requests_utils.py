@@ -1,8 +1,10 @@
+import logging
 from json import load
 from logging import info
 from os.path import dirname, join
 
 from sqlalchemy import create_engine, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .accountability_metadata import AccountabilityMetadata
@@ -12,6 +14,7 @@ with open(
     join(dirname(__file__), "../", "configuration.json")
 ) as json_configuration_file:
     CONFIG = load(json_configuration_file)
+LOGGER = logging.getLogger(__name__)
 
 
 def bdd_connexion():
@@ -55,12 +58,20 @@ def save_company_to_database(siren, denomination, ape, postal_code, town):
         "postal_code": postal_code,
         "town": town,
     }
-    ENGINE.execute(sql_insert_query, sql_args)
+    try:
+        ENGINE.execute(sql_insert_query, sql_args)
+    except IntegrityError as e:
+        LOGGER.warning("integrity_error", extra={"exc": str(e)})
+        SESSION.rollback()
 
 
 def save_metadata_ORM(metadata_object):
-    SESSION.add(metadata_object)
-    SESSION.flush()
+    try:
+        SESSION.add(metadata_object)
+        SESSION.flush()
+    except IntegrityError as e:
+        LOGGER.warning("integrity_error", extra={"exc": str(e)})
+        SESSION.rollback()
 
 
 def save_metadata_to_database(
@@ -95,8 +106,12 @@ def save_bundle_to_database(siren, declaration, accountability, bundle, amount):
         bundle=bundle,
         amount=amount,
     )
-    SESSION.add(new_bundle)
-    SESSION.flush()
+    try:
+        SESSION.add(new_bundle)
+        SESSION.flush()
+    except IntegrityError as e:
+        LOGGER.warning("integrity_error", extra={"exc": str(e)})
+        SESSION.rollback()
 
 
 def sum_bundle_into_database(siren, declaration, accountability, bundle, amount):
