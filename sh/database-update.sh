@@ -12,4 +12,4 @@ mkdir -p ../input
 mkdir -p ../output
 
 # Start downloading and importing data
-python3 ../scripts/database_update.py --source CQuest
+python3 -m enthic.scraping.download_from_INPI --source CQuest
