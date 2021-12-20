@@ -1,14 +1,3 @@
-"""
-===================
-Set of function to help handle errors in data from INPI
-===================
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
 from enthic.ontology import CODE_MOTIF
 
 

@@ -1,16 +1,3 @@
-"""
-=========================
-Error JSON response Class
-=========================
-
-PROGRAM BY PAPIT SASU, 2020
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
 from flask import request
 
 from enthic.utils.json_response import JSONResponse

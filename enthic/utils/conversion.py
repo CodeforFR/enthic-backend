@@ -1,21 +1,7 @@
-"""
-===============================================================================
-Set of function converting the ontology from INPI format to base integer format
-===============================================================================
-
-PROGRAM BY PAPIT SASU, 2020
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
 import re
 
 from enthic.ontology import APE_CODE, ONTOLOGY
 
-################################################################################
 # CREATE DICTIONARY WHERE keys ARE 'official APE code' AND values ARE 'enthic APE code'
 CON_APE = {}
 for key, value in APE_CODE.items():

@@ -1,13 +1,3 @@
-"""
-====================================================================
-====================================================================
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
 from copy import deepcopy
 from math import isnan
 

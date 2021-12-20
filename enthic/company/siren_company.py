@@ -1,17 +1,3 @@
-"""
-======================================================
-Class representing a company, constructed with a SIREN
-======================================================
-
-PROGRAM BY PAPIT SASU, 2020
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
-
 from enthic.company.company import (
     MultipleBundleCompany,
     SirenCompany,

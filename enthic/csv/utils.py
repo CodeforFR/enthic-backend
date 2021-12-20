@@ -1,13 +1,3 @@
-"""
-====================================================================
-====================================================================
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
 import codecs
 import csv
 import io

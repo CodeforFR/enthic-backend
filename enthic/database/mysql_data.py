@@ -1,16 +1,3 @@
-"""
-===============
-SQL data object
-===============
-
-PROGRAM BY PAPIT SASU, 2019
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
 from flask import abort
 
 from enthic.database.fetch import fetchall

@@ -1,13 +1,3 @@
-"""
-=========================================================
-Ontology of the accounts and APE code returned by the API
-=========================================================
-
-In complement, explanation of the data retrieved by the API. Combining data
-endpoints and the ontology endpoint should avoid multiplication and backward
-compatibility issue.
-"""
-
 ONTOLOGY = {
     "accounting": {
         0: {

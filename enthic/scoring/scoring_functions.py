@@ -1,14 +1,3 @@
-"""
-====================================================================
-Compute statistics from companies's data after complete and check it
-====================================================================
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
 from math import isnan
 
 

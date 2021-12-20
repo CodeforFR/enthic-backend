@@ -1,17 +1,3 @@
-"""
-===========================================================================
-Flask application, compatible with Sphinx documentation and Gunicorn server
-===========================================================================
-
-PROGRAM BY PAPIT SASU, 2019
-
-Coding Rules:
-
-- Snake case for variables.
-- Only argument is configuration file.
-- No output or print, just log and files.
-"""
-
 import concurrent.futures
 from json import load, loads
 from os.path import dirname, join

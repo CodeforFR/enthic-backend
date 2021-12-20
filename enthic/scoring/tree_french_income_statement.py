@@ -1,9 +1,3 @@
-"""
-============================================================
-Tree view of data contained in a french "compte de resultat"
-============================================================
-"""
-
 TREE_VIEW = {
     "name": "Bénéfices",
     "codeLiasses": ["HN", "310"],
