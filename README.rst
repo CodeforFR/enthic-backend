@@ -28,6 +28,12 @@ make create_environment
 make requirements
 ```
 
+In production run the following instead :
+```
+pip install -U pip setuptools wheel
+pip install -r requirements/base.txt
+```
+
 **Run an instance**
 -------------------
 
@@ -41,9 +47,9 @@ Change ip for host to "0.0.0.0" for production server
 ---------------------------------------
 Create database, tables and indexes. Then begins to download data from INPI's FTP and loads it into MySQL database.
 
-.. code-block:: bash
+.. code-block:: python
 
-   $ sh ./database-creation.sh <your mysql password>
+   $ python -m enthics.scraping.download_from_INPI
 
 ***Run API***
 -------------
