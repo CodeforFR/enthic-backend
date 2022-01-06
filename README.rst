@@ -41,6 +41,7 @@ Activate virtual environment and update pip
 .. code-block:: bash
 
   pip install -r requirements/dev.txt
+  pre-commit install
 
 * for production
 
@@ -64,7 +65,7 @@ Create database, tables and indexes. Then begins to download data from INPI's FT
 
 .. code-block:: bash
 
-   python -m enthics.scraping.download_from_INPI
+   python -m enthic.scraping.download_from_INPI
 
 ***Run API***
 -------------

@@ -2,16 +2,16 @@
 
 ################################################################################
 # 1) INSTALL DISTANT SYNAPTIC PACKAGES
-apt-get -y install gunicorn3 nginx certbot
+apt-get -y install nginx certbot
 
 # 2) INSTALL ENTHIC SERVICE AND ENABLE IT
-cp ../server/enthic.service /etc/systemd/system/enthic.service
+cp server/enthic.service /etc/systemd/system/enthic.service
 mkdir -p /var/www/enthic/
 systemctl start enthic
 systemctl enable enthic
 
 # 3) CONFIGURE NGINX SERVER
-cp ../server/enthic-nginx.conf /etc/nginx/sites-available/enthic.conf
+cp .server/enthic-nginx.conf /etc/nginx/sites-available/enthic.conf
 ln -s /etc/nginx/sites-available/enthic.conf /etc/nginx/sites-enabled/
 
 systemctl enable nginx
