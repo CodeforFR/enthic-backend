@@ -16,28 +16,33 @@ Scoring, AI, data scrapping for segmentation.
 -------------------------------------------
 
 Install system wide the following requirements :
-```
-apt-get install pyenv-virtualenv libxml2-utils mysql-server libmariadbclient-dev
-mysql_secure_installation
-```
+.. code-block:: bash
+  apt-get install libxml2-utils mysql-server libmariadbclient-dev
+  mysql_secure_installation
 
-Create and activate virtual environment python 3.9.4.
-The package uses [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv).
-```
-make create_environment
-make requirements
-```
+Create and activate virtual environment python3 (only once).
+.. code-block:: bash
+  pip install virtualenv
+  virtualenv venv -p python3
 
-In production run the following instead :
-```
-pip install -U pip setuptools wheel
-pip install -r requirements/base.txt
-```
+Activate virtual environment and update pip
+.. code-block:: bash
+  . venv/bin/activate
+  pip install -U pip setuptools wheel
+
+* for development
+.. code-block:: bash
+  pip install -r requirements/dev.txt
+
+* for production
+.. code-block:: bash
+  pip install -r requirements/base.txt
+
 
 **Run an instance**
 -------------------
 
-***Fill configuration file***
+**Fill configuration file**
 -----------------------------
 Fill file ``python/enthic/configuration.json`` with correct user/password for Mysql and INPI.
 Change ip for host to "0.0.0.0" for production server
