@@ -109,3 +109,7 @@ python/enthic/static/documentation/
 .python-version
 nohup.out
 notebooks
+.coverage
+.env
+data
+.DS_Store
