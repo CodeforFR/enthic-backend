@@ -3,7 +3,7 @@
 # PROGRAM BY PAPIT SASU, CREATE THE MySQL DATABASE
 ################################################################################
 # CONSTANTS
-readonly SQL_DIR="../sql/";
+readonly SQL_DIR="sql/";
 ################################################################################
 # 1) CREATE A DATABASE AFTER DROP IT IF EXIST
 mysql < ${SQL_DIR}create-database-enthic.sql --password="$1" || echo "database creation error : are you using the correct database user, and have you provided the correct password through --password argument ?"
@@ -33,4 +33,4 @@ mysql enthic < ${SQL_DIR}create-table-statistics.sql --password="$1";
 mysql enthic < ${SQL_DIR}create-table-ape-stats.sql --password="$1";
 ################################################################################
 #10) INSERT DATA INTO DATABASE
-./database-update.sh
+./sh/database-update.sh

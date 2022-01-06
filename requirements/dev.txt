@@ -1,0 +1,12 @@
+-r base.txt
+pytest
+pytest-cov
+coverage
+pre-commit
+pyupgrade
+flake8
+isort
+black
+sphinx
+python-lsp-server[all]
+git+https://github.com/tomv564/pyls-mypy.git

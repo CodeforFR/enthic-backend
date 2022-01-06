@@ -12,4 +12,4 @@ mkdir -p ../input
 mkdir -p ../output
 
 # Start downloading and importing data
-python3 ../python/enthic/scraping/download_from_INPI.py --source CQuest
+python3 -m enthic.scraping.download_from_INPI --source CQuest

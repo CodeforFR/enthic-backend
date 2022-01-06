@@ -1,0 +1,8 @@
+flask
+flask_cors
+flask_mysqldb
+numpy
+py7zr
+pymysql
+sqlalchemy
+wget
