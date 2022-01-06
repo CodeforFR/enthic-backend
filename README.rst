@@ -16,26 +16,36 @@ Scoring, AI, data scrapping for segmentation.
 -------------------------------------------
 
 Install system wide the following requirements :
+
 .. code-block:: bash
+
   apt-get install libxml2-utils mysql-server libmariadbclient-dev
   mysql_secure_installation
 
 Create and activate virtual environment python3 (only once).
+
 .. code-block:: bash
+
   pip install virtualenv
   virtualenv venv -p python3
 
 Activate virtual environment and update pip
+
 .. code-block:: bash
+
   . venv/bin/activate
   pip install -U pip setuptools wheel
 
 * for development
+
 .. code-block:: bash
+
   pip install -r requirements/dev.txt
 
 * for production
+
 .. code-block:: bash
+
   pip install -r requirements/base.txt
 
 
