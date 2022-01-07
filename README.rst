@@ -1,16 +1,12 @@
 **French societies accountability extraction and treatment**
 ============================================================
 
-Project that treats data from opendata-rncs.inpi.fr. They contain xml
-files of the account declaration of all french societies. The overall project
-is meant to be low-code and open source. Aim to provide ethical indicators on companies.
-Information media is a MySQL database, CSV files, web visualisation and a
-swagger API. The search engine endpoint return a JSON-LD (Hydra) compliant JSON.
-Company JSON cannot conform to JSON-LD Organization type due to lack of data
-(contact for instance).
-Score and indicators are calculated by batch, sql and why not using
-fancy libraries. Help in data treatment to improve scoring would be appreciated.
-Scoring, AI, data scrapping for segmentation.
+This projects download from open source the financial results of french companies.
+It proposes financial and social indicators to evaluate companies social impact.
+Indicators are available through a web API, documented in swagger.
+
+https://enthic-dataviz.netlify.app
+
 
 **Install application**
 ------------------------
