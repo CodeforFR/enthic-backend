@@ -3,11 +3,11 @@ Description=Gunicorn instance to serve Enthic
 After=network.target
 
 [Service]
-User=goudet
-Group=goudet
+User=enthic
+Group=enthic
 
-WorkingDirectory=/home/goudet/Documents/dev/enthic-backend
-ExecStart=/home/goudet/Documents/dev/enthic-backend/venv/bin/gunicorn --timeout 90 --workers 3 --bind unix:/var/www/enthic/enthic.sock enthic.app:application
+WorkingDirectory=${REPO_DIR}
+ExecStart=${REPO_DIR}/venv/bin/gunicorn --timeout 90 --workers 3 --bind unix:/var/www/enthic/enthic.sock enthic.app:application
 
 [Install]
 WantedBy=multi-user.target
