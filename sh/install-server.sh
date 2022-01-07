@@ -25,13 +25,11 @@ ln -s /etc/nginx/sites-available/enthic.conf /etc/nginx/sites-enabled/
 systemctl enable nginx
 systemctl start nginx
 
-# 4) CONFIGURE HTTPS
+# CONFIGURE HTTPS
 certbot --nginx
 
-# 3) INSTALL DAILY UPDATE CRON (TODO fix it)
+# INSTALL DAILY UPDATE CRON
 touch /etc/cron.daily/enthic
 
-script_dir=$(dirname "$0")
-
-daily_cron_task="0 2 * * * /bin/sh ${script_dir}/database-update.sh"
+daily_cron_task="0 2 * * * enthic cd `pwd` && `pwd`/venv/bin/python -m enthic.scraping.download_from_INPI --source CQuest"
 echo "${daily_cron_task}" > /etc/cron.daily/enthic
