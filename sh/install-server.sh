@@ -1,16 +1,24 @@
 #!/bin/sh
 
-################################################################################
-# 1) INSTALL DISTANT SYNAPTIC PACKAGES
+# INSTALL DISTANT SYNAPTIC PACKAGES
 apt-get -y install nginx certbot
 
-# 2) INSTALL ENTHIC SERVICE AND ENABLE IT
-cp server/enthic.service /etc/systemd/system/enthic.service
+# Create enthic user
+useradd enthic || echo "User already exists."
+
+# Give socket rights to enthic user
+SOCKET=/var/www/enthic
+mkdir -p ${SOCKET}
+chown -R enthic:enthic ${SOCKET}
+chomd -R 006 ${SOCKET}
+
+# INSTALL ENTHIC SERVICE AND ENABLE IT
+REPO_DIR=`pwd` envsubst < server/enthic.service > /etc/systemd/system/enthic.service
 mkdir -p /var/www/enthic/
 systemctl start enthic
 systemctl enable enthic
 
-# 3) CONFIGURE NGINX SERVER
+# CONFIGURE NGINX SERVER
 cp .server/enthic-nginx.conf /etc/nginx/sites-available/enthic.conf
 ln -s /etc/nginx/sites-available/enthic.conf /etc/nginx/sites-enabled/
 
