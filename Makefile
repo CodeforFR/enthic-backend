@@ -6,8 +6,6 @@
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROJECT_NAME := enthic-backend
-PYTHON_INTERPRETER := python3
-PYTHON_VERSION := 3.8.12
 ENV_NAME := $(PROJECT_NAME)-$(PYTHON_VERSION)
 
 #################################################################################
@@ -15,10 +13,16 @@ ENV_NAME := $(PROJECT_NAME)-$(PYTHON_VERSION)
 #################################################################################
 
 ## Install Python Dependencies
-requirements:
-	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	$(PYTHON_INTERPRETER) -m pip install -r requirements/dev.txt
+dev_requirements:
+	. venv/bin/activate
+	pip install -U pip setuptools wheel
+	pip install -r requirements/dev.txt
 	pre-commit install
+
+prod_requirements:
+	. venv/bin/activate
+	pip install -U pip setuptools wheel
+	pip install -r requirements/base.txt
 
 ## Delete all compiled Python files
 clean:
@@ -26,7 +30,8 @@ clean:
 	find . -type d -name "__pycache__" -delete
 
 create_environment:
-	pyenv install -s $(PYTHON_VERSION)
-	pyenv virtualenv $(PYTHON_VERSION) $(ENV_NAME)
-	pyenv local $(ENV_NAME)
-	echo $(ENV_NAME) > .python-version
+	pip install virtualenv
+	virtualenv venv -p python3
+
+activate:
+	. venv/bin/activate

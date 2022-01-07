@@ -12,10 +12,13 @@ Score and indicators are calculated by batch, sql and why not using
 fancy libraries. Help in data treatment to improve scoring would be appreciated.
 Scoring, AI, data scrapping for segmentation.
 
-**Install dependencies and python package**
--------------------------------------------
+**Install application**
+------------------------
 
-Install system wide the following requirements :
+Install base dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Install system wide softwares.
 
 .. code-block:: bash
 
@@ -26,62 +29,61 @@ Create and activate virtual environment python3 (only once).
 
 .. code-block:: bash
 
-  pip install virtualenv
-  virtualenv venv -p python3
-
-Activate virtual environment and update pip
-
-.. code-block:: bash
-
-  . venv/bin/activate
-  pip install -U pip setuptools wheel
-
-* for development
-
-.. code-block:: bash
-
-  pip install -r requirements/dev.txt
-  pre-commit install
-
-* for production
-
-.. code-block:: bash
-
-  pip install -r requirements/base.txt
+  make create_environment
 
 
-**Run an instance**
--------------------
-
-**Fill configuration file**
------------------------------
-Fill file ``python/enthic/configuration.json`` with correct user/password for Mysql and INPI.
+Fill the configuration file ``python/enthic/configuration.json`` with correct user/password for Mysql and INPI.
 Change ip for host to "0.0.0.0" for production server
 
 
-***Create MySQL database and fill it***
----------------------------------------
-Create database, tables and indexes. Then begins to download data from INPI's FTP and loads it into MySQL database.
+Create MySQL database.
+
+.. code-block:: bash
+
+  bask sh/database_creation.sh
+
+For development
+~~~~~~~~~~~~~~~
+
+Install libraries.
+
+.. code-block:: bash
+
+  make dev_requirements
+
+Download the data.
 
 .. code-block:: bash
 
    python -m enthic.scraping.download_from_INPI
 
-***Run API***
--------------
-
-A flask REST API can distribute data over the web. Following Swagger standard.
+Run the API.
 
 .. code-block:: bash
 
-   $ python -m enthic.app
+  python -m enthic.app
+
+Test the project.
+
+.. code-block:: bash
+  pytest
+
+For production
+~~~~~~~~~~~~~~
+
+Install required librairies.
+
+.. code-block:: bash
+
+  . venv/bin/activate
+  pip install -r requirements/base.txt
 
 
-Testing
--------
+Install server configuration.
 
-`pytest`
+.. code-block:: bash
 
+  sudo bash sh/install-server.sh
 
 Generate documentation
 ----------------------
