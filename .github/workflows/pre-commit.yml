@@ -15,7 +15,7 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       run: |
-        make dev_requirements
+        pip install -U pip setuptools wheel && pip install -r requirements/dev.txt && pre-commit install
     - name: Analysing the code with pre-commit
       run: |
         pre-commit run --all-files
