@@ -19,7 +19,7 @@ systemctl start enthic
 systemctl enable enthic
 
 # CONFIGURE NGINX SERVER
-cp .server/enthic-nginx.conf /etc/nginx/sites-available/enthic.conf
+cp server/enthic-nginx.conf /etc/nginx/sites-available/enthic.conf
 ln -s /etc/nginx/sites-available/enthic.conf /etc/nginx/sites-enabled/
 
 systemctl enable nginx
