@@ -36,7 +36,7 @@ Create MySQL database.
 
 .. code-block:: bash
 
-  bask sh/database_creation.sh
+  bash sh/database_creation.sh
 
 For development
 ~~~~~~~~~~~~~~~
@@ -72,7 +72,7 @@ Install required librairies.
 .. code-block:: bash
 
   . venv/bin/activate
-  pip install -r requirements/base.txt
+  pip install -r requirements/prod.txt
 
 
 Install server configuration.
