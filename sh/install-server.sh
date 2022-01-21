@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # INSTALL DISTANT SYNAPTIC PACKAGES
-apt-get -y install nginx certbot
+apt-get -y install nginx certbot python3-certbot-nginx
 
 # Create enthic user
 useradd enthic || echo "User already exists."
@@ -10,11 +10,12 @@ useradd enthic || echo "User already exists."
 SOCKET=/var/www/enthic
 mkdir -p ${SOCKET}
 chown -R enthic:enthic ${SOCKET}
-chomd -R 006 ${SOCKET}
+chmod -R 006 ${SOCKET}
 
 # INSTALL ENTHIC SERVICE AND ENABLE IT
 REPO_DIR=`pwd` envsubst < server/enthic.service > /etc/systemd/system/enthic.service
 mkdir -p /var/www/enthic/
+systemctl daemon-reload
 systemctl start enthic
 systemctl enable enthic
 

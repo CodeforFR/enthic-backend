@@ -6,8 +6,5 @@ git stash
 git pull --rebase
 git stash pop
 
-# 2) INSTALL NEW CODE
-./install-wheel.sh
-
-# 3) RESTART ENTHIC SERVICE
+# 2) RESTART ENTHIC SERVICE
 systemctl restart enthic
