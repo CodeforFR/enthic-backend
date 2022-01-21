@@ -52,7 +52,6 @@ application.config["MYSQL_DB"] = "enthic"
 @application.route(
     "/company/siren/<int:siren>/<string:year>", methods=["GET"], strict_slashes=False
 )
-@insert_request
 def company_siren_year(siren, year):
     """
     Retrieve company information by SIREN for a given year. Path is
@@ -84,7 +83,6 @@ def company_siren(siren):
 
 
 @application.route("/exist/siren/<sirens>", methods=["GET"], strict_slashes=False)
-@insert_request
 def company_denomination_year(sirens):
     """
     Return existing siren given as argument that exist in database.
@@ -102,7 +100,6 @@ def company_denomination_year(sirens):
 
 @application.route("/ontology/bundles", methods=["GET"], strict_slashes=False)
 @application.route("/ontology/bundle", methods=["GET"], strict_slashes=False)
-@insert_request
 def ontology():
     """
     Return the ontology used to extract accountability data.
@@ -113,7 +110,6 @@ def ontology():
 
 
 @application.route("/ontology/ape", methods=["GET"], strict_slashes=False)
-@insert_request
 def ape():
     """
     Return all known APE codes.
@@ -125,7 +121,6 @@ def ape():
 
 @application.route("/ontology/scores", methods=["GET"], strict_slashes=False)
 @application.route("/ontology/score", methods=["GET"], strict_slashes=False)
-@insert_request
 def scores():
     """
     Return description of all scores computed.
@@ -136,7 +131,6 @@ def scores():
 
 
 @application.route("/ontology/metadata", methods=["GET"], strict_slashes=False)
-@insert_request
 def metadata():
     """
     Return description of INPI's metadata.
@@ -397,7 +391,6 @@ def page_search():
 @application.route(
     "/top/<int:bundle_type>/<int:year>/<ape>", methods=["GET"], strict_slashes=False
 )
-@insert_request
 def get_tops(bundle_type, year=None, ape=None):
     limit = 50
     response = {
@@ -439,7 +432,6 @@ def get_tops(bundle_type, year=None, ape=None):
 @application.route(
     "/statistics/<string:real_ape>", methods=["GET"], strict_slashes=False
 )
-@insert_request
 def statistics(real_ape, year=None, score=None):
     """
     Return stored statistics about the given APE code as json
@@ -470,7 +462,6 @@ def statistics(real_ape, year=None, score=None):
 @application.route(
     "/compute/company/<string:first_letters>/", methods=["GET"], strict_slashes=False
 )
-@insert_request
 def compute(first_letters, year=None):
     """
     Computes scores and saves them into the database.
@@ -499,7 +490,6 @@ def compute(first_letters, year=None):
     methods=["GET"],
     strict_slashes=False,
 )
-@insert_request
 def compute_all(offset, limit, year=None):
     """
     Computes bundle's scores and saves them into the database.
@@ -539,7 +529,6 @@ def compute_all(offset, limit, year=None):
 @application.route(
     "/compute/ape/<string:real_ape>", methods=["GET"], strict_slashes=False
 )
-@insert_request
 def compute_ape(real_ape, year=None, score=None):
     """
     Computes decile for each score for the given year, score and APE (including APE part of the given one) and saves them into the database.
@@ -633,7 +622,6 @@ def compute_ape(real_ape, year=None, score=None):
 
 @application.route("/csv/company/<int:siren>", methods=["GET"], strict_slashes=False)
 @application.route("/csv/ape/<string:ape>", methods=["GET"], strict_slashes=False)
-@insert_request
 def serve_csv_file(siren=None, ape=None):
     """
     Get all data from the given company and returns it as csv file
@@ -655,7 +643,6 @@ def serve_csv_file(siren=None, ape=None):
 
 
 @application.route("/<path:path>", strict_slashes=False)
-@insert_request
 def static_proxy(path):
     """
     Serve the static files, like the Swagger definition page and the 404.
@@ -667,7 +654,6 @@ def static_proxy(path):
 
 
 @application.route("/", strict_slashes=False)
-@insert_request
 def index():
     """
     Serve the index.html at the base path.
@@ -678,7 +664,6 @@ def index():
 
 
 @application.errorhandler(404)
-@insert_request
 def page_not_found(error):
     """
     Page not found and logging.
@@ -691,7 +676,6 @@ def page_not_found(error):
 
 
 @application.errorhandler(500)
-@insert_request
 def server_error(error):
     """
     Server error page and logging.
