@@ -172,7 +172,7 @@ def get_siren_data_from_insee_api(siren):
 
 def get_siret_data_from_insee_api(siren):
     """
-    Get some data from societe.ninja for the given company that sometimes lacks from opendatasoft
+    Get some data from INSEE API for the given company that sometimes lacks from opendatasoft
         :param siren: the company's siren to search for
     """
 
@@ -198,9 +198,7 @@ def get_siret_data_from_insee_api(siren):
         )
         exit()
     content = json.loads(response.text)
-    if content["header"]["message"] == "Aucun élément trouvé pour le siren " + str(
-        siren
-    ):
+    if "Aucun élément trouvé pour" in content["header"]["message"]:
         return None
     if (
         content["header"]["message"]
@@ -787,7 +785,11 @@ def read_identity_data(identity_xml_item, xml_file_name):
         elif identity.tag == "{fr:inpi:odrncs:bilansSaisisXML}adresse":
             postal_code, town = read_address_data(identity, xml_file_name)
             if len(str(postal_code)) > 5:
-                postal_code, town = get_siret_data_from_insee_api(siren)
+                result = get_siret_data_from_insee_api(siren)
+                if result:
+                    postal_code, town = result
+                else:
+                    postal_code = postal_code[:5]
         elif identity.tag == "{fr:inpi:odrncs:bilansSaisisXML}duree_exercice_n":
             duree_exercice = int(identity.text)
         elif identity.tag == "{fr:inpi:odrncs:bilansSaisisXML}code_activite":

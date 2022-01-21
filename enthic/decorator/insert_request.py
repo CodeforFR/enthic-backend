@@ -46,6 +46,8 @@ def insert_request(func):
                 and app_request.__dict__["environ"].get("PATH_INFO") != b""
             ):
                 uri = app_request.__dict__["environ"]["PATH_INFO"]
+                if len(uri) > 100:
+                    uri = uri[0:100]
             else:
                 uri = "UNKNOWN URI"
             if (
