@@ -19,7 +19,7 @@ def test_fetch_bundle_xmls(mock_download):
             bundle_fn, Path(outdir) / "bilans_saisis_20210101.7z"
         )
 
-        fetch_bundle_xmls("bilans_saisis_20210101.7z", savedir)
+        fetch_bundle_xmls("bilans_saisis_20210101.7z", 2021, savedir)
         comptes = (
             savedir
             / "bilans_saisis_20210101"
@@ -31,5 +31,5 @@ def test_fetch_bundle_xmls(mock_download):
 
 @pytest.mark.skip(reason="No need to stress the platform")
 def test_list_bundles():
-    bundles = list_bundles()
-    assert len(bundles) > 1660
+    bundles = list_bundles(2021)
+    assert len(bundles) > 350

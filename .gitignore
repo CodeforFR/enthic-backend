@@ -114,4 +114,5 @@ notebooks
 .env
 .DS_Store
 venv
+data
 *.tmp

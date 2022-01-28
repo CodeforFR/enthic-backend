@@ -6,13 +6,15 @@ from bs4 import BeautifulSoup
 
 from enthic import ontology
 from enthic.scraping.bundles_utils import ModifiedData
-from enthic.utils.conversion import CON_APE
+from enthic.utils.ape_utils import APE_CONVERSION
 from enthic.utils.INPI_data_enhancer import decrypt_code_motif
 
 LOGGER = logging.getLogger(__name__)
 RE_POSTAL_CODE_TOWN = re.compile(
     r"([0-9]+)[ -]?¨?([a-zA-Z0-9`ÀéÉèÈîÎ_ \'\"-\.\(\)\-]+)"
 )
+RE_TOWN = re.compile(r"([a-zA-Z0-9_ \'\"-\.\(\)\-]+)")
+RE_POSTAL_CODE = re.compile(r"([0-9]+)")
 
 
 class Liasse(dict):
@@ -53,7 +55,7 @@ def _parse_identity(soup: BeautifulSoup) -> dict:
         for name, rename, fct in properties_def
     }
     properties["ape"] = str(
-        CON_APE.get(properties["naf8"][:2] + "." + properties["naf8"][2:], -1)
+        APE_CONVERSION.get(properties["naf8"][:2] + "." + properties["naf8"][2:], -1)
     )
     properties["year"] = int(properties["cloture"].year)
     properties["postal_code"], properties["town"] = read_address_data(
@@ -92,22 +94,22 @@ def read_address_data(address_xml_item: str):
         if not town.strip():
             postal_code, town = (ModifiedData.WRONG_FORMAT.value,) * 2
     except TypeError as error:
-        debug(f"{str(error)}: {str(address_xml_item)}")
+        logging.debug(f"{str(error)}: {str(address_xml_item)}")
         postal_code, town = (ModifiedData.WRONG_FORMAT.value,) * 2
     except AttributeError as error:
         try:
-            debug(f"{str(error)}: {str(address_xml_item)}")
+            logging.debug(f"{str(error)}: {str(address_xml_item)}")
             regex_match = RE_TOWN.match(address_xml_item)
             town = regex_match.group(1).upper()
             postal_code = ModifiedData.WRONG_FORMAT.value
         except AttributeError as error:
             try:
-                debug(f"{str(error)}: {str(address_xml_item)}")
+                logging.debug(f"{str(error)}: {str(address_xml_item)}")
                 regex_match = RE_POSTAL_CODE.match(address_xml_item)
                 town = ModifiedData.WRONG_FORMAT.value
                 postal_code = regex_match.group(1)
             except AttributeError as error:
-                debug(f"{str(error)}: {str(address_xml_item)}")
+                logging.debug(f"{str(error)}: {str(address_xml_item)}")
                 postal_code, town = (ModifiedData.WRONG_FORMAT.value,) * 2
 
     return postal_code, town

@@ -1,9 +1,12 @@
 {
-  "inputPath": "../../input",
+  "inputPath": "../input",
+  "outputPath": "../output/",
   "accountOntologyCSV": "account-ontology.csv",
+  "tmpBundleFile": "bundle.tmp",
+  "identityFile": "identity.tmp",
   "debugLevel": "INFO",
-  "csvSeparator": "\t",
-  "importHistoricFile": "importHistoric.txt",
+  "csvSeparator" : "\t",
+  "importHistoricFile" : "../input/importHistoric.txt",
   "mySQL": {
     "enthic": {
       "host": "localhost",
@@ -21,6 +24,9 @@
     "port": 3307
   },
   "INSEE": {
-    "token": "Bearer blablabla"
+    "token": "Bearer blablabla",
+    "__valeurs trouvable en créant un compte sur =>" : "https://api.insee.fr/catalogue/site/themes/wso2/subthemes/insee/pages/application.jag",
+    "KEY" : " Clef du consommateur ",
+    "SECRET" : " Secret du consommateur "
   }
 }
