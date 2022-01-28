@@ -1,22 +1,24 @@
 import datetime
 import json
 import logging
+import xml.etree.ElementTree as ElementTree
 from csv import reader
 from io import BytesIO
 from logging import debug, info
 from os import listdir
 from os.path import dirname, join
 from pathlib import Path
+from pprint import pprint
 from re import compile, sub
 from zipfile import BadZipFile, ZipFile
 
-import requests
 from enthic.scraping.insee import (
     get_siren_data_from_insee_api,
     get_siret_data_from_insee_api,
 )
-from enthic.scraping.liasse import Liasse, parse_xml_liasse, read_address_data
-from enthic.utils.conversion import ACCOUNTING_TYPE_CONVERSION, APE_CONVERSION, BUNDLE_CONVERSION
+from enthic.scraping.liasse import read_address_data
+from enthic.utils.ape_utils import APE_CONVERSION
+from enthic.utils.bundle_utils import ACCOUNTING_TYPE_CONVERSION, BUNDLE_CONVERSION
 from enthic.utils.INPI_data_enhancer import decrypt_code_motif
 
 from .accountability_metadata import AccountabilityMetadata, MetadataCase
@@ -129,7 +131,9 @@ def read_identity_data(identity_xml_item, xml_file_name):
             duree_exercice = int(identity.text)
         elif identity.tag == "{fr:inpi:odrncs:bilansSaisisXML}code_activite":
             ape_with_dot = identity.text[:2] + "." + identity.text[2:]
-            if ape_with_dot in APE_CONVERSION:  # Find enthic integer from given ape code
+            if (
+                ape_with_dot in APE_CONVERSION
+            ):  # Find enthic integer from given ape code
                 ape = str(APE_CONVERSION[ape_with_dot])
             elif (
                 ape_with_dot in old_naf_to_new_naf
@@ -158,7 +162,8 @@ def read_identity_data(identity_xml_item, xml_file_name):
                         ape_with_dot,
                         ") ou de l'INSEE (",
                         ape_from_insee,
-                        ")",
+                        ") from xmlfile",
+                        xml_file_name,
                     )
                     exit()
 
@@ -288,9 +293,9 @@ def process_xml_file(xml_stream, xml_name):
                                             str(year),
                                             str(ACCOUNTING_TYPE_CONVERSION[acc_type]),
                                             str(
-                                                BUNDLE_CONVERSION[ACCOUNTING_TYPE_CONVERSION[acc_type]][
-                                                    bundle.attrib["code"]
-                                                ]
+                                                BUNDLE_CONVERSION[
+                                                    ACCOUNTING_TYPE_CONVERSION[acc_type]
+                                                ][bundle.attrib["code"]]
                                             ),
                                             str(int(bundle.attrib[amount_code])),
                                         )
@@ -300,9 +305,9 @@ def process_xml_file(xml_stream, xml_name):
                                             str(year),
                                             str(ACCOUNTING_TYPE_CONVERSION[acc_type]),
                                             str(
-                                                BUNDLE_CONVERSION[ACCOUNTING_TYPE_CONVERSION[acc_type]][
-                                                    bundle.attrib["code"]
-                                                ]
+                                                BUNDLE_CONVERSION[
+                                                    ACCOUNTING_TYPE_CONVERSION[acc_type]
+                                                ][bundle.attrib["code"]]
                                             ),
                                             str(int(bundle.attrib[amount_code])),
                                             False,
@@ -313,9 +318,9 @@ def process_xml_file(xml_stream, xml_name):
                                             str(year),
                                             str(ACCOUNTING_TYPE_CONVERSION[acc_type]),
                                             str(
-                                                BUNDLE_CONVERSION[ACCOUNTING_TYPE_CONVERSION[acc_type]][
-                                                    bundle.attrib["code"]
-                                                ]
+                                                BUNDLE_CONVERSION[
+                                                    ACCOUNTING_TYPE_CONVERSION[acc_type]
+                                                ][bundle.attrib["code"]]
                                             ),
                                             str(int(bundle.attrib[amount_code])),
                                         )

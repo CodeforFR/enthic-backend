@@ -39,6 +39,12 @@ def request_insee(url: str):
     if response.status_code == 401:
         raise RuntimeError("INSEE connection error")
 
+    if response.status_code == 404:
+        print(
+            "l'erreur 404 de l'INSEE, ça peut être parce que le SIREN n'a pas été trouvé"
+        )
+        response.status_code = 200
+
     return response
 
 
@@ -52,12 +58,12 @@ def get_siret_data_from_insee_api(siren):
 
     response = request_insee(url)
     if response.status_code != 200:
-        raise RuntimeError(f"Error fetching siren {siren} : {response.text}")
+        raise RuntimeError(f"Error fetching siret for siren {siren} : {response.text}")
 
     content = response.json()
-    if content["header"]["message"].startswith(
-        "Aucun élément trouvé pour"
-    ) or content["header"]["message"].startswith("Unité légale non diffusable"):
+    if content["header"]["message"].startswith("Aucun élément trouvé pour") or content[
+        "header"
+    ]["message"].startswith("Unité légale non diffusable"):
         return None
 
     etab = content["etablissements"][0]["adresseEtablissement"]
