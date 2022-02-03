@@ -10,10 +10,10 @@ useradd enthic || echo "User already exists."
 SOCKET=/var/www/enthic
 mkdir -p ${SOCKET}
 chown -R enthic:enthic ${SOCKET}
-chmod -R 006 ${SOCKET}
+chmod -R 777 ${SOCKET}
 
 # INSTALL ENTHIC SERVICE AND ENABLE IT
-REPO_DIR=`pwd` envsubst < server/enthic.service > /etc/systemd/system/enthic.service
+REPO_DIR=`pwd` envsubst < server/enthic.service > /etc/systemd/system/enthic.service || exit 2
 mkdir -p /var/www/enthic/
 systemctl daemon-reload
 systemctl start enthic
@@ -21,7 +21,7 @@ systemctl enable enthic
 
 # CONFIGURE NGINX SERVER
 cp server/enthic-nginx.conf /etc/nginx/sites-available/enthic.conf
-ln -s /etc/nginx/sites-available/enthic.conf /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/enthic.conf /etc/nginx/sites-enabled/
 
 systemctl enable nginx
 systemctl start nginx

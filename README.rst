@@ -17,21 +17,20 @@ Scoring, AI, data scrapping for segmentation.
 
 Install system wide the following requirements :
 ```
-apt-get install pyenv-virtualenv libxml2-utils mysql-server libmariadbclient-dev
-mysql_secure_installation
+apt-get install libxml2-utils mariadb-server libmariadbclient-dev make python3-pip virtualenv
 ```
 
 Create and activate virtual environment python 3.9.4.
 The package uses [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv).
 ```
 make create_environment
-make requirements
+make dev_requirements
 ```
 
 In production run the following instead :
 ```
-pip install -U pip setuptools wheel
-pip install -r requirements/base.txt
+make create_environment
+make prod_requirements
 ```
 
 **Run an instance**
@@ -48,6 +47,7 @@ Change ip for host to "0.0.0.0" for production server
 Create database, tables and indexes. Then begins to download data from INPI's FTP and loads it into MySQL database.
 
 .. code-block:: bash
+   sh ./database-creation.sh <your mysql password>
 
    python -m enthic.scraping.download_from_INPI
 

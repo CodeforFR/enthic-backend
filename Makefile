@@ -15,14 +15,16 @@ ENV_NAME := $(PROJECT_NAME)-$(PYTHON_VERSION)
 ## Install Python Dependencies
 dev_requirements:
 	. venv/bin/activate
-	pip install -U pip setuptools wheel
-	pip install -r requirements/dev.txt
+	pip3 install -U pip setuptools wheel
+	pip3 install -r requirements/base.txt
+	pip3 install -r requirements/dev.txt
 	pre-commit install
 
 prod_requirements:
 	. venv/bin/activate
-	pip install -U pip setuptools wheel
-	pip install -r requirements/base.txt
+	pip3 install -U pip setuptools wheel
+	pip3 install -r requirements/base.txt
+	pip3 install -r requirements/prod.txt
 
 ## Delete all compiled Python files
 clean:
@@ -30,7 +32,7 @@ clean:
 	find . -type d -name "__pycache__" -delete
 
 create_environment:
-	pip install virtualenv
+	pip3 install virtualenv
 	virtualenv venv -p python3
 
 activate:

@@ -1,3 +1,5 @@
+from time import sleep
+
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -33,15 +35,24 @@ def request_insee(url: str):
 
     response = requests.get(url, headers=connector.header())
     if response.status_code == 401:
+        print(f"Erreur 401 for url {url}. Response : {response.text}")
         connector.generate_token()
         response = requests.get(url, headers=connector.header(), verify=True)
 
-    if response.status_code == 401:
-        raise RuntimeError("INSEE connection error")
+    if response.status_code == 429:
+        print("Erreur 429 : too many request for INSEE, waiting 1 minutes")
+        sleep(61)
+        response = requests.get(url, headers=connector.header())
 
     if response.status_code == 404:
         print(
-            "l'erreur 404 de l'INSEE, ça peut être parce que le SIREN n'a pas été trouvé"
+            f"Erreur 404 de l'INSEE, ça peut être parce que le SIREN n'a pas été trouvé : {response.text}"
+        )
+        response.status_code = 200
+
+    if response.status_code == 403:
+        print(
+            "l'erreur 403 de l'INSEE, ça peut être parce que le SIREN n'est pas diffusable"
         )
         response.status_code = 200
 
@@ -58,7 +69,9 @@ def get_siret_data_from_insee_api(siren):
 
     response = request_insee(url)
     if response.status_code != 200:
-        raise RuntimeError(f"Error fetching siret for siren {siren} : {response.text}")
+        raise RuntimeError(
+            f"Error {response.status_code} fetching siret for siren {siren} : {response.text}"
+        )
 
     content = response.json()
     if content["header"]["message"].startswith("Aucun élément trouvé pour") or content[
@@ -83,7 +96,9 @@ def get_siren_data_from_insee_api(siren):
     url = BASE_URL + f"siren/{siren}"
     response = request_insee(url)
     if response.status_code != 200:
-        raise RuntimeError(f"Error fetching siren {siren} : {response.text}")
+        raise RuntimeError(
+            f"Error {response.status_code} fetching siren {siren} : {response.text}"
+        )
 
     content = response.json()
     if "Aucun élément trouvé pour" in content["header"]["message"]:
