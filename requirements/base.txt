@@ -12,3 +12,4 @@ deprecated
 lxml
 python-dotenv
 pandas
+requests

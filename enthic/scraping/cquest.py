@@ -59,11 +59,13 @@ def fetch_bundle_xmls(bundle_name: str, year: int, savedir: Path):
     Name of the directory where data is saved.
     """
     LOGGER.info(bundle_name)
-    _download_bundle(bundle_name, year, savedir)
+    _download_bundle(bundle_name, year, savedir, True)
     _unzip_bundle(bundle_name, savedir)
 
 
-def _download_bundle(bundle_name: Union[str, Path], year: int, savedir: Path):
+def _download_bundle(
+    bundle_name: Union[str, Path], year: int, savedir: Path, retry: bool
+):
     try:
         url = f"{BASE_URL}{year}/{str(bundle_name)}"
         wget.download(url, str(savedir))
@@ -73,6 +75,17 @@ def _download_bundle(bundle_name: Union[str, Path], year: int, savedir: Path):
             {"filename": bundle_name, "error": str(error)},
         )
         raise
+    except urllib.error.URLError as error:
+        LOGGER.error(
+            f"failed_bundle_download, url {url}",
+            {"filename": bundle_name, "error": str(error)},
+        )
+        if retry:
+            _download_bundle(
+                bundle_name=bundle_name, year=year, savedir=savedir, retry=False
+            )
+        else:
+            raise
 
 
 def _unzip_bundle(bundle_name: str, savedir: Path):

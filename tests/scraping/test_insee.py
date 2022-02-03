@@ -17,7 +17,7 @@ class TestINSEESiret:
         requests_mock.get(f"{BASE_URL}siret?q=siren:2", status_code=406)
         with pytest.raises(RuntimeError) as excinfo:
             get_siret_data_from_insee_api(2)
-        assert str(excinfo.value).startswith("Error fetching siret for siren 2")
+        assert str(excinfo.value).startswith("Error 406 fetching siret for siren 2")
 
     def test_error_unknown_siren(self, requests_mock):
         requests_mock.get(

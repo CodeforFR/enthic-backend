@@ -12,7 +12,7 @@
       "url": "http://www.wtfpl.net/"
     }
   },
-  "host": "api.enthic.fr",
+  "host": "enthic.auberge-tante-marie.fr",
   "basePath": "/company",
   "tags": [
     {
@@ -36,7 +36,7 @@
       "description": "Describe the development process",
       "externalDocs": {
         "description": "API Sphinx documentation",
-        "url": "https://api.enthic.fr/documentation/index.html"
+        "url": "https://enthic.auberge-tante-marie.fr/documentation/index.html"
       }
     },
     {
