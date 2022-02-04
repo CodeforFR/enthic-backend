@@ -16,14 +16,12 @@ ENV_NAME := $(PROJECT_NAME)-$(PYTHON_VERSION)
 dev_requirements:
 	. venv/bin/activate
 	pip3 install -U pip setuptools wheel
-	pip3 install -r requirements/base.txt
 	pip3 install -r requirements/dev.txt
 	pre-commit install
 
 prod_requirements:
 	. venv/bin/activate
 	pip3 install -U pip setuptools wheel
-	pip3 install -r requirements/base.txt
 	pip3 install -r requirements/prod.txt
 
 ## Delete all compiled Python files
