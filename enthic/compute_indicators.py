@@ -80,7 +80,7 @@ def main():
     parser.add_argument("host", help="API address IP + port")
     parser.add_argument(
         "batch_size",
-        metavar="batch size",
+        metavar="batch_size",
         type=int,
         help="number of companies to compute per API request",
     )
