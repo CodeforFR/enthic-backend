@@ -400,12 +400,10 @@ def get_tops(bundle_type, year=None, ape=None):
     }
     sql_args = {"bundle_type": bundle_type, "year": year, "limit": limit}
     raw_results = fetchall(
-        """
-        SELECT `bundle`.siren, amount, denomination, ape
-        FROM `bundle`
-        INNER JOIN `identity` ON `identity`.`siren` = `bundle`.`siren`
-        WHERE declaration = %(year)s and accountability = 0 and bundle = %(bundle_type)s
-        ORDER BY amount DESC
+        f"""
+        SELECT siren, amount, denomination, ape
+        FROM `table_tops_{year}`
+        WHERE bundle = %(bundle_type)s
         LIMIT %(limit)s;""",
         sql_args,
     )
