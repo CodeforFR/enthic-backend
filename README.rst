@@ -60,6 +60,17 @@ A flask REST API can distribute data over the web. Following Swagger standard.
 
    $ python -m enthic.app
 
+***Run pipeline***
+------------------
+The pipeline allows to download batch data from the database and generate analysis features.
+First add `DATADIR=data` in the .env file.
+
+.. code-block::bash
+
+  python -m enthic.scoring.pipeline
+
+This will save a parquet file 'enthic_features.parquet' in your DATADIR directory.
+
 
 Testing
 -------

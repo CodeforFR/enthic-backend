@@ -26,7 +26,8 @@ class INSEEConnector:
             data={"grant_type": "client_credentials", "validity_period": 3600 * 24},
             verify=False,
         )
-        assert r.status_code == 200
+        if r.status_code != 200:
+            raise RuntimeError(r.content.decode("utf-8"))
         self.token = r.json()["access_token"]
 
 
