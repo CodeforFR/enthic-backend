@@ -116,3 +116,6 @@ notebooks
 venv
 data
 *.tmp
+
+sql_data
+migrations
