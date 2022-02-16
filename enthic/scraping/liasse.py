@@ -122,7 +122,7 @@ def _parse_bilan(soup: BeautifulSoup, type_bilan: str) -> dict:
 
     fields = (
         ontology.read_account()
-        .pipe(lambda df: df[df["accountability"] == type_bilan])
+        .pipe(lambda df: df[df["accountability_code"] == type_bilan])
         .to_dict(orient="records")
     )
 
@@ -132,9 +132,9 @@ def _parse_bilan(soup: BeautifulSoup, type_bilan: str) -> dict:
 
 
 def _get_field_amount(bilan: BeautifulSoup, field: dict) -> dict:
-    element = bilan.find("liasse", {"code": field["code"]})
+    element = bilan.find("liasse", {"code": field["bundle_name"]})
     if not element:
-        return field["code"], None
+        return field["bundle_name"], None
     column = field["column"]
     amount = element.get(f"m{column}")
-    return field["code"], amount if amount is None else int(amount)
+    return field["bundle_name"], amount if amount is None else int(amount)
