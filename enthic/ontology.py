@@ -3158,3 +3158,23 @@ SCORE_DESCRIPTION = {
         "function": "compute_data_availability",
     },
 }
+
+SCORE_ERROR = {
+    -1000: "Montant des salaires incohérent",
+    -1100: "Montant des salaires non fournis",
+    -1200: "Montant des salaires à zéro",
+    -1300: "Montant des salaires négatif",
+    -2000: "Montant des cotisations sociales incohérent",
+    -2100: "Montant des cotisations sociales non fournis",
+    -2200: "Montant des cotisations sociales à zéro",
+    -2300: "Montant des cotisations sociales négatif",
+    -3100: "Montant des impôts sur les bénéfices non fournis",
+    -3200: "Montant des impôts sur les bénéfices négatif",
+    -4100: "Effectifs non fournis",
+    -4200: "Effectifs à zéro",
+    -4300: "Effectifs négatif",
+    -5100: "Bénéfice attribué non négligeable",
+    -6100: "Montant des charges d’exploitation non fournis",
+    -6200: "Montant des charges d’exploitation à zéro",
+    -6300: "Montant des charges d’exploitation négatif",
+}
