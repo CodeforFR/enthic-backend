@@ -38,6 +38,11 @@ def recursive_fill_tree(tree_item, raw_data):
             break
 
 
+# Accepted amount of difference when checking parent value against it's children
+relative_error = 0.008
+absolute_error = 10
+
+
 def check_tree_data(tree_item):
     """
     Check and complete data in the given tree_item
@@ -67,10 +72,6 @@ def check_tree_data(tree_item):
 
     for child_name in tree_item["children"]:
         check_tree_data(tree_item["children"][child_name])
-
-    # Accepted amount of difference when checking parent value against it's children
-    relative_error = 0.005
-    absolute_error = 10
 
     # Compute ourself tree_item's value from its children
     computed_sum = 0  # Result from official children's value
@@ -122,14 +123,15 @@ def check_tree_data(tree_item):
                         child_data["value"] = 0
 
             computed_sum = computed_sum_from_computed
-        # If there is only on value missing from children, set this child's value equal to the computed difference
+        # If there is only one value missing from children, set this child's value equal to the computed difference
         elif child_missing_count == 1:
             for child_name in tree_item["children"]:
                 child_data = tree_item["children"][child_name]["data"]
                 if math.isnan(child_data["value"]):
-                    child_data["computedValue"] = (value - computed_sum) / child["sign"]
-                    child_data["value"] = child_data["computedValue"]
-                    child_data["status"] = "computed"
+                    doubleCheckComputedValueWithChildren(
+                        tree_item["children"][child_name],
+                        (value - computed_sum) / child["sign"],
+                    )
                     tree_item["data"]["status"] = "checked"
                     break
 
@@ -139,6 +141,7 @@ def check_tree_data(tree_item):
             or abs(computed_sum_without_sign - value) < absolute_error
         ):
             tree_item["data"]["status"] = "checked"
+            tree_item["data"]["computedValue"] = computed_sum_without_sign
             # Fix children sign and/or set to zero missing values if any
             for child_name in tree_item["children"]:
                 flip_sign(tree_item["children"][child_name])
@@ -148,8 +151,40 @@ def check_tree_data(tree_item):
         else:
             tree_item["data"]["status"] = "error"
 
-    if computed_sum != tree_item["data"]["value"]:
+    if (
+        computed_sum != tree_item["data"]["value"]
+        and "computedValue" not in tree_item["data"]
+    ):
         tree_item["data"]["computedValue"] = computed_sum_from_computed
+
+
+def computeChildrenSum(item):
+    computedSum = 0
+    for childName in item["children"]:
+        child = item["children"][childName]
+        if "value" in child["data"]:
+            computedSum += child["data"]["value"] * child["sign"]
+    return computedSum
+
+
+def areOpposite(value, reference):
+    """
+    Check if given value is equal to minus reference
+    """
+    result = value + reference
+    if abs(result / reference) < relative_error or abs(result) < absolute_error:
+        return True
+    return False
+
+
+def doubleCheckComputedValueWithChildren(item, computedValue):
+    item["data"]["value"] = computedValue
+    item["data"]["status"] = "computed"
+    if "children" in item:
+        computedSum = computeChildrenSum(item)
+        if areOpposite(computedSum, item["data"]["value"]):
+            item["data"]["value"] = -item["data"]["value"]
+            flip_sign(item)
 
 
 def set_to_zero_computed(tree_item):
@@ -178,12 +213,23 @@ def flip_sign(item):
     if item["sign"] == -1:
         item["data"]["value"] = -item["data"]["value"]
         item["data"]["status"] = "signFlipped"
+        if "children" in item:
+            computedSum = computeChildrenSum(item)
+            if not areOpposite(computedSum, item["data"]["value"]):
+                return
+            for child_name in item["children"]:
+                child = item["children"][child_name]
+                child["data"]["value"] = -child["data"]["value"]
+                child["data"]["status"] = "signFlipped"
 
 
 def gather_data_to_compute(tree, raw):
     root = tree["children"]
     resultat_avant_impot = root["ResultatAvantImpot"]["children"]
     result = {
+        "benefice_attribue": resultat_avant_impot["BenefAttribueOuPerteTransferee"][
+            "data"
+        ]["value"],
         "participation": root["ParticipationSalariesAuxResultats"]["data"]["value"],
         "impot": root["ImpotsSurLesBenefices"]["data"]["value"],
         "resultat_exceptionnel": root["ResultatExceptionnel"]["data"]["value"],
