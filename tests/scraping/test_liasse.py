@@ -71,4 +71,4 @@ class TestReadAddress:
         inp = "SASU PATRICE MAZET"
         postcode, town = read_address_data(inp)
         print(postcode, town)
-        assert (postcode, town) == (ModifiedData.WRONG_FORMAT.value, inp)
+        assert (postcode, town) == (ModifiedData.WRONG_FORMAT.value,) * 2
