@@ -1,14 +1,12 @@
 import datetime
 import json
 import logging
-import xml.etree.ElementTree as ElementTree
 from csv import reader
 from io import BytesIO
 from logging import debug, info
 from os import listdir
 from os.path import dirname, join
 from pathlib import Path
-from pprint import pprint
 from re import compile, sub
 from zipfile import BadZipFile, ZipFile
 
@@ -16,14 +14,13 @@ from enthic.scraping.insee import (
     get_siren_data_from_insee_api,
     get_siret_data_from_insee_api,
 )
-from enthic.scraping.liasse import read_address_data
+from enthic.scraping.liasse import Liasse, parse_xml_liasse, read_address_data
 from enthic.utils.ape_utils import APE_CONVERSION
 from enthic.utils.bundle_utils import ACCOUNTING_TYPE_CONVERSION, BUNDLE_CONVERSION
 from enthic.utils.INPI_data_enhancer import decrypt_code_motif
 
 from .accountability_metadata import AccountabilityMetadata, MetadataCase
 from .database_requests_utils import (
-    SESSION,
     get_metadata,
     replace_bundle_into_database,
     replace_metadata_ORM,
@@ -191,162 +188,58 @@ def read_identity_data(identity_xml_item, xml_file_name):
     )
 
 
-def process_xml_file(xml_stream, xml_name):
-    """
-    Process an xml file already opened
-    """
-    ####################################################
-    # XML PARSER
-    try:
-        tree = ElementTree.parse(xml_stream)
-    except ElementTree.ParseError as error:
-        info("Error processing XML " + xml_name + f" : {error}")
-        return False
-    root = tree.getroot()
-    ####################################################
-    # XML RELATED VARIABLES
-    acc_type, siren, year = (None,) * 3
-    ####################################################
-    # ITERATE ALL TAGS
-    metadata_case = MetadataCase.IS_NEW
-    bundles_added_set = set()
-    for child in root[0]:
-        ################################################
-        # IDENTITY TAGS, SIREN AND TYPE OF ACCOUNTABILITY
-        if child.tag == "{fr:inpi:odrncs:bilansSaisisXML}identite":
-            (
-                acc_type,
-                siren,
-                denomination,
-                year,
-                ape,
-                postal_code,
-                town,
-                code_motif,
-                code_confidentialite,
-                info_traitement,
-                duree_exercice,
-                date_cloture_exercice,
-            ) = read_identity_data(child, xml_name)
-            ############################################
-            # WRITE IDENTITY FILE IF ACCOUNT TYPE IS
-            # KNOWN
-            if acc_type not in ACC_ONT.keys():
-                return False
-            existing_metadata_list = get_metadata(siren)
-            new_metadata = AccountabilityMetadata(
-                siren=siren,
-                declaration=year,
-                duree_exercice=duree_exercice,
-                date_cloture_exercice=date_cloture_exercice,
-                code_motif=code_motif,
-                code_confidentialite=code_confidentialite,
-                info_traitement=info_traitement,
-                accountability=acc_type,
+def process_xml_file(xml: str, xml_name: str):
+    liasse = parse_xml_liasse(xml)
+    if not liasse["bilan"]:
+        LOGGER.warning(
+            "No data extracted",
+            extra={"siren": liasse["siren"], "cloture": liasse["cloture"].isoformat()},
+        )
+        return
+    metadata_status = _update_metadata(liasse)
+    _save_accountability(metadata_status, liasse)
+
+
+def _update_metadata(liasse: Liasse):
+    # Add order by and get last only
+    # add selection on year
+    existing_metadata = get_metadata(liasse["siren"])
+    if not existing_metadata:
+        save_company_to_database(**liasse._to_identity())
+        return MetadataCase.IS_NEW
+
+    metadata = AccountabilityMetadata.from_liasse(liasse)
+    status = metadata.compare(existing_metadata)
+
+    if status == MetadataCase.IGNORE:
+        return status
+
+    if status == MetadataCase.REPLACE:
+        replace_metadata_ORM(metadata, existing_metadata)
+    else:
+        save_metadata_ORM(metadata)
+    return status
+
+
+def _save_accountability(status, liasse):
+    opts = dict(
+        siren=liasse["siren"],
+        declaration=liasse["year"],
+        accountability=str(ACCOUNTING_TYPE_CONVERSION[liasse["type_bilan"]]),
+    )
+    for code, amount in liasse["bilan"].items():
+        bundle = str(
+            BUNDLE_CONVERSION[ACCOUNTING_TYPE_CONVERSION[liasse["type_bilan"]]][code]
+        )
+        amount = str(int(amount))
+        if status == MetadataCase.COMPLEMENTARY:
+            sum_bundle_into_database(bundle=bundle, amount=amount, **opts)
+        elif status == MetadataCase.REPLACE:
+            replace_bundle_into_database(
+                bundle=bundle, amount=amount, add_detail_mode=False, **opts
             )
-
-            metadata_to_replace = None
-            for existing_metadata in existing_metadata_list:
-                result = new_metadata.compare(existing_metadata)
-                if result == MetadataCase.IGNORE:
-                    return False
-                if result == MetadataCase.REPLACE:
-                    metadata_to_replace = existing_metadata
-                    metadata_case = result
-                if (
-                    result != MetadataCase.IS_NEW
-                    and metadata_case != MetadataCase.REPLACE
-                ):
-                    metadata_case = result
-
-            if len(existing_metadata_list) == 0:
-                save_company_to_database(
-                    str(siren), str(denomination), str(ape), str(postal_code), str(town)
-                )
-            else:
-                print(
-                    "New metadata",
-                    new_metadata,
-                    "different des metadata déjà en base. Action choisie :",
-                    metadata_case,
-                )
-                pprint(existing_metadata_list)
-
-            if metadata_case == MetadataCase.REPLACE:
-                replace_metadata_ORM(new_metadata, metadata_to_replace)
-            else:
-                save_metadata_ORM(new_metadata)
-        ################################################
-        # BUNDLE TAGS IN PAGES TO ITERATE WITH BUNDLE CODES
-        # AND AMOUNT
-        elif child.tag == "{fr:inpi:odrncs:bilansSaisisXML}detail":
-            for page in child:
-                for bundle in page:
-                    try:
-                        for bundle_code in ACC_ONT[acc_type]["bundleCodeAtt"]:
-                            if bundle.attrib["code"] in bundle_code.keys():
-                                for amount_code in bundle_code[bundle.attrib["code"]]:
-                                    amount_code = f"m{amount_code}"
-                                    if metadata_case == MetadataCase.COMPLEMENTARY:
-                                        sum_bundle_into_database(
-                                            siren,
-                                            str(year),
-                                            str(ACCOUNTING_TYPE_CONVERSION[acc_type]),
-                                            str(
-                                                BUNDLE_CONVERSION[
-                                                    ACCOUNTING_TYPE_CONVERSION[acc_type]
-                                                ][bundle.attrib["code"]]
-                                            ),
-                                            str(int(bundle.attrib[amount_code])),
-                                        )
-                                    elif metadata_case == MetadataCase.REPLACE:
-                                        replace_bundle_into_database(
-                                            siren,
-                                            str(year),
-                                            str(ACCOUNTING_TYPE_CONVERSION[acc_type]),
-                                            str(
-                                                BUNDLE_CONVERSION[
-                                                    ACCOUNTING_TYPE_CONVERSION[acc_type]
-                                                ][bundle.attrib["code"]]
-                                            ),
-                                            str(int(bundle.attrib[amount_code])),
-                                            False,
-                                        )
-                                    elif metadata_case == MetadataCase.IS_NEW:
-                                        new_bundle = (
-                                            siren,
-                                            str(year),
-                                            str(ACCOUNTING_TYPE_CONVERSION[acc_type]),
-                                            str(
-                                                BUNDLE_CONVERSION[
-                                                    ACCOUNTING_TYPE_CONVERSION[acc_type]
-                                                ][bundle.attrib["code"]]
-                                            ),
-                                            str(int(bundle.attrib[amount_code])),
-                                        )
-                                        if new_bundle[:4] in bundles_added_set:
-                                            print(
-                                                "Bundle",
-                                                new_bundle,
-                                                "en double dans le fichier XML",
-                                            )
-                                        else:
-                                            bundles_added_set.add(new_bundle[:4])
-                                            save_bundle_to_database(
-                                                new_bundle[0],
-                                                new_bundle[1],
-                                                new_bundle[2],
-                                                new_bundle[3],
-                                                new_bundle[4],
-                                            )
-                    except KeyError as key_error:
-                        debug(
-                            "{} in account {} bundle {}".format(
-                                key_error, acc_type, bundle.attrib["code"]
-                            )
-                        )
-    SESSION.commit()
-    return True
+        elif status == MetadataCase.IS_NEW:
+            save_bundle_to_database(bundle=bundle, amount=amount, **opts)
 
 
 def process_daily_zip_file(daily_zip_file_path):

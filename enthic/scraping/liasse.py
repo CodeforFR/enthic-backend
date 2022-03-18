@@ -13,8 +13,6 @@ LOGGER = logging.getLogger(__name__)
 RE_POSTAL_CODE_TOWN = re.compile(
     r"([0-9]+)[ -]?¨?([a-zA-Z0-9`ÀéÉèÈîÎ_ \'\"-\.\(\)\-]+)"
 )
-RE_TOWN = re.compile(r"([a-zA-Z0-9_ \'\"-\.\(\)\-]+)")
-RE_POSTAL_CODE = re.compile(r"([0-9]+)")
 
 
 class Liasse(dict):
@@ -86,33 +84,14 @@ def read_address_data(address_xml_item: str):
 
     :param address_xml_item: the identity's address XMl object
     """
-    postal_code, town = (ModifiedData.ABSENT.value,) * 2
-    try:
-        regex_match = RE_POSTAL_CODE_TOWN.match(address_xml_item)
+    regex_match = RE_POSTAL_CODE_TOWN.match(address_xml_item)
+    if regex_match:
         postal_code = regex_match.group(1)
-        town = regex_match.group(2).upper()
-        if not town.strip():
-            postal_code, town = (ModifiedData.WRONG_FORMAT.value,) * 2
-    except TypeError as error:
-        logging.debug(f"{str(error)}: {str(address_xml_item)}")
-        postal_code, town = (ModifiedData.WRONG_FORMAT.value,) * 2
-    except AttributeError as error:
-        try:
-            logging.debug(f"{str(error)}: {str(address_xml_item)}")
-            regex_match = RE_TOWN.match(address_xml_item)
-            town = regex_match.group(1).upper()
-            postal_code = ModifiedData.WRONG_FORMAT.value
-        except AttributeError as error:
-            try:
-                logging.debug(f"{str(error)}: {str(address_xml_item)}")
-                regex_match = RE_POSTAL_CODE.match(address_xml_item)
-                town = ModifiedData.WRONG_FORMAT.value
-                postal_code = regex_match.group(1)
-            except AttributeError as error:
-                logging.debug(f"{str(error)}: {str(address_xml_item)}")
-                postal_code, town = (ModifiedData.WRONG_FORMAT.value,) * 2
+        town = regex_match.group(2).upper().strip()
 
-    return postal_code, town
+        if town:
+            return postal_code, town
+    return (ModifiedData.WRONG_FORMAT.value,) * 2
 
 
 def _parse_bilan(soup: BeautifulSoup, type_bilan: str) -> dict:
@@ -122,7 +101,7 @@ def _parse_bilan(soup: BeautifulSoup, type_bilan: str) -> dict:
 
     fields = (
         ontology.read_account()
-        .pipe(lambda df: df[df["accountability_code"] == type_bilan])
+        .pipe(lambda df: df[df["accountability"] == type_bilan])
         .to_dict(orient="records")
     )
 
@@ -132,9 +111,9 @@ def _parse_bilan(soup: BeautifulSoup, type_bilan: str) -> dict:
 
 
 def _get_field_amount(bilan: BeautifulSoup, field: dict) -> dict:
-    element = bilan.find("liasse", {"code": field["bundle_name"]})
+    element = bilan.find("liasse", {"code": field["code"]})
     if not element:
-        return field["bundle_name"], None
+        return field["code"], None
     column = field["column"]
     amount = element.get(f"m{column}")
-    return field["bundle_name"], amount if amount is None else int(amount)
+    return field["code"], amount if amount is None else int(amount)
