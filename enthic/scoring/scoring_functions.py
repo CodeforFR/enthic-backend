@@ -12,26 +12,44 @@ def compute_exploitation_share(data):
     participation = data["participation"]
     impot = data["impot"]
     resultat_exploitation = data["resultat_exploitation"]
+    benefice_attribue = data["benefice_attribue"]
 
     # If any values unknown, cannot compute score
     if isnan(impot):
         return -3100
     if impot < 0:
         return -3200
-    if (
-        any(isnan(value) for value in [resultat_exploitation])
-        or resultat_exploitation < 0
-    ):
-        return float("nan")
+    if isnan(resultat_exploitation):
+        return -7100
+    if isnan(benefice_attribue):
+        benefice_attribue = 0
+    if resultat_exploitation + benefice_attribue <= 0:
+        return -7200
 
     if isnan(participation):
         participation = 0
     # Compute score if possible
     shared_part = participation + impot
-    if resultat_exploitation > 0:
-        return shared_part / resultat_exploitation
 
-    return float("nan")
+    total_resultat = resultat_exploitation + benefice_attribue
+    result = shared_part / total_resultat
+
+    if result < 0 and participation < 0:
+        return -10000
+
+    if result > 10:
+        resultat_exceptionnel = data["resultat_exceptionnel"]
+        resultat_financier = data["resultat_financier"]
+        if isnan(resultat_financier):
+            resultat_financier = 0
+        if isnan(resultat_exceptionnel):
+            resultat_exceptionnel = 0
+        if resultat_exceptionnel + resultat_financier > total_resultat:
+            return -8000
+    if result > 1000:
+        return -9999
+
+    return result
 
 
 def compute_overall_wages_weight(data):
@@ -59,8 +77,22 @@ def compute_overall_wages_weight(data):
 
     result = (salaires + cotisations_sociales) / charges
 
-    if result < 0 and charges < 0:
-        return -6300
+    if result < 0:
+        if charges < 0:
+            return -6300
+        elif cotisations_sociales < 0:
+            return -2300
+        elif salaires < 0:
+            return -1300
+
+    if result > 2:
+        if cotisations_sociales > charges and salaires > charges:
+            return -6400
+        elif cotisations_sociales > charges:
+            return -2500
+        elif salaires > charges:
+            return -1400
+        return -9999
 
     return result
 
@@ -96,6 +128,8 @@ def compute_wage_quality(data):
             return -1300
         if cotisations_sociales < 0:
             return -2300
+    if ratio > 2:
+        return -2400
     return ratio
 
 
@@ -151,16 +185,25 @@ def compute_profit_sharing(data):
     ):
         return float("nan")
 
-    somme_resultats = resultat_financier + resultat_exploitation + resultat_exceptionnel
-    if somme_resultats == 0:
-        return float("nan")
+    if isnan(benefice_attribue):
+        benefice_attribue = 0
+    somme_resultats = (
+        resultat_financier
+        + resultat_exploitation
+        + resultat_exceptionnel
+        + benefice_attribue
+    )
+
+    if somme_resultats <= 0:
+        return -9000
 
     if isnan(participation):
         participation = 0
 
     result = (participation + impot) / somme_resultats
-    if result < 0 and not isnan(benefice_attribue) and benefice_attribue > 0:
-        return -5100
+
+    if result < 0 and participation < 0:
+        return -10000
 
     return result
 
@@ -196,17 +239,17 @@ def compute_exploitation_part(data):
     ) == 0:
         return float("nan")
 
-    result = (data["produits_exploitation"] + data["charges_exploitation"]) / (
-        data["produits_exploitation"]
-        + data["charges_exploitation"]
-        + data["produits_exceptionnel"]
-        + data["charges_exceptionnel"]
-        + data["produits_financier"]
-        + data["charges_financier"]
+    result = (
+        abs(data["produits_exploitation"]) + abs(data["charges_exploitation"])
+    ) / (
+        abs(data["produits_exploitation"])
+        + abs(data["charges_exploitation"])
+        + abs(data["produits_exceptionnel"])
+        + abs(data["charges_exceptionnel"])
+        + abs(data["produits_financier"])
+        + abs(data["charges_financier"])
     )
-    if result < 0:
-        if data["charges_exploitation"] < 0:
-            return -6300
+
     return result
 
 
@@ -224,3 +267,6 @@ def compute_data_availability(data):
             data_available += 1
 
     return data_available / len(data)
+
+
+# SELECT * FROM `annual_statistics` where stats_type != 4 and value not in (-4300, -6300, -6100, -6200, -5100, -1000, -1100, -1200, -1300, -2000, -2100, -2200, -2300, -2400, -2500, -3100, -3200, -4100, -4200, -4300, -1400, -6400, -7100, -7200, -8000, -9000, -9999, -10000) ORDER BY `annual_statistics`.`value`  ASC;
