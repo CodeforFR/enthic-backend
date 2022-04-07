@@ -119,10 +119,43 @@ def check_tree_data(tree_item):
                     child_data["status"] = "computed"
                     if "computedValue" in child_data:
                         child_data["value"] = child_data["computedValue"]
+                        for child_child_name in tree_item["children"][child_name][
+                            "children"
+                        ]:
+                            set_to_zero_computed(
+                                tree_item["children"][child_name]["children"][
+                                    child_child_name
+                                ]
+                            )
                     else:
                         child_data["value"] = 0
 
             computed_sum = computed_sum_from_computed
+
+        # If official value match computed value * 1000, it mean value was multiplied by 1000 by mistake
+        elif (
+            abs((computed_sum * 1000 - value) / value) < relative_error
+            or abs(computed_sum * 1000 - value) < absolute_error
+        ):
+            tree_item["data"]["status"] = "scaled down"
+            tree_item["data"]["value"] = computed_sum
+            # Fix children values if needed
+            if child_missing_count > 0:
+                for child_name in tree_item["children"]:
+                    set_to_zero_computed(tree_item["children"][child_name])
+
+        # If official value match computed value / 1000, it mean value was divided by 1000 by mistake
+        elif (
+            abs((computed_sum - value * 1000) / value) < relative_error
+            or abs(computed_sum - value * 1000) < absolute_error
+        ):
+            tree_item["data"]["status"] = "scaled up"
+            tree_item["data"]["value"] = computed_sum
+            # Fix children values if needed
+            if child_missing_count > 0:
+                for child_name in tree_item["children"]:
+                    set_to_zero_computed(tree_item["children"][child_name])
+
         # If there is only one value missing from children, set this child's value equal to the computed difference
         elif child_missing_count == 1:
             for child_name in tree_item["children"]:

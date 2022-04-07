@@ -22,6 +22,7 @@ from enthic.ontology import (
     INFO_TRAITEMENT,
     ONTOLOGY,
     SCORE_DESCRIPTION,
+    SCORE_ERROR,
 )
 from enthic.scoring.main import compute_score, get_percentiles, save_score_in_database
 from enthic.utils.ape_utils import (
@@ -128,6 +129,17 @@ def scores():
        :return: HTTP Response as application/json. the ontology as JSON.
     """
     return OKJSONResponse(SCORE_DESCRIPTION)
+
+
+@application.route("/ontology/error_code", methods=["GET"], strict_slashes=False)
+@application.route("/ontology/error_codes", methods=["GET"], strict_slashes=False)
+def error_codes():
+    """
+    Return description of all scores computed.
+
+       :return: HTTP Response as application/json. the ontology as JSON.
+    """
+    return OKJSONResponse(SCORE_ERROR)
 
 
 @application.route("/ontology/metadata", methods=["GET"], strict_slashes=False)

@@ -13,7 +13,7 @@ def compute_companies_statistics(host, year, limit, offset):
         :param host: API address IP + port
     """
     indicators_count = 0
-    for i in range(offset, 2000000, limit):
+    for i in range(offset, 2500000, limit):
         url = "http://" + host + "/compute/company/all/" + str(i) + "/" + str(limit)
         if year:
             url += "/" + str(year)
