@@ -8,7 +8,6 @@ from logging import debug, info
 from os import listdir
 from os.path import dirname, join
 from pathlib import Path
-from pprint import pprint
 from re import compile, sub
 from zipfile import BadZipFile, ZipFile
 
@@ -270,7 +269,6 @@ def process_xml_file(xml_stream, xml_name):
                     "different des metadata déjà en base. Action choisie :",
                     metadata_case,
                 )
-                pprint(existing_metadata_list)
 
             if metadata_case == MetadataCase.REPLACE:
                 replace_metadata_ORM(new_metadata, metadata_to_replace)
