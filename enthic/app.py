@@ -91,9 +91,16 @@ def company_denomination_year(sirens):
        :return: HTTP Response as application/json. Contain all existing siren.
     """
     sirenlist = sirens.split(",")
-    sql_query = (
-        "SELECT siren FROM `identity` WHERE siren IN " + str(tuple(sirenlist)) + "; "
-    )
+    if len(sirenlist) > 1:
+        sql_query = (
+            "SELECT siren FROM `identity` WHERE siren IN "
+            + str(tuple(sirenlist))
+            + "; "
+        )
+    elif len(sirenlist) == 1:
+        sql_query = (
+            "SELECT siren FROM `identity` WHERE siren = " + str(sirenlist[0]) + "; "
+        )
     existing_siren = fetchall(sql_query)
     result = [item[0] for item in existing_siren]
     return OKJSONResponse(result)
