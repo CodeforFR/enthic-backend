@@ -96,9 +96,9 @@ def company_ape(ape):
     enthic_ape_code = get_corresponding_ape_codes(ape)
 
     if len(enthic_ape_code) > 1:
-        sql_query += f" AND ape IN {tuple(enthic_ape_code)}"
+        sql_query += f" AND ape IN {tuple(enthic_ape_code)} "
     elif len(enthic_ape_code) == 1:
-        sql_query += f" AND ape = {enthic_ape_code[0]}"
+        sql_query += f" AND ape = {enthic_ape_code[0]} "
     sql_query += """GROUP BY siren
                     ORDER BY value DESC"""
     sql_param = {"ape": enthic_ape_code}
