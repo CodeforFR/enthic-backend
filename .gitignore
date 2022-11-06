@@ -116,6 +116,6 @@ notebooks
 venv
 data
 *.tmp
-
+bundles/
 sql_data
 migrations

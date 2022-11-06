@@ -24,12 +24,16 @@ Create and activate virtual environment python 3.9.4.
 The package uses [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv).
 ```
 make create_environment
+```
+```
 make dev_requirements
 ```
 
 In production run the following instead :
 ```
 make create_environment
+```
+```
 make prod_requirements
 ```
 

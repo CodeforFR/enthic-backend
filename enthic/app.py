@@ -14,6 +14,7 @@ from enthic.csv.utils import (
     get_financial_data_by_siren,
 )
 from enthic.database.fetch import fetchall
+from enthic.database.mysql import initialize_mysql
 from enthic.decorator.insert_request import insert_request
 from enthic.ontology import (
     APE_CODE,
@@ -50,6 +51,9 @@ application.config["CACHE_TYPE"] = "simple"
 application.config["MYSQL_DB"] = "enthic"
 
 
+initialize_mysql(application)
+
+
 @application.route(
     "/company/siren/<int:siren>/<string:year>", methods=["GET"], strict_slashes=False
 )
@@ -81,6 +85,29 @@ def company_siren(siren):
           on that company of an error message if SIREN wrongly formatted.
     """
     return AllSirenCompany(siren)
+
+
+@application.route("/company/ape/<string:ape>", methods=["GET"], strict_slashes=False)
+@insert_request
+def company_ape(ape):
+    sql_query = """SELECT identity.siren, denomination, value FROM identity
+                INNER JOIN annual_statistics ON identity.siren=annual_statistics.siren
+                WHERE stats_type = 1"""
+    enthic_ape_code = get_corresponding_ape_codes(ape)
+
+    if len(enthic_ape_code) > 1:
+        sql_query += f" AND ape IN {tuple(enthic_ape_code)}"
+    elif len(enthic_ape_code) == 1:
+        sql_query += f" AND ape = {enthic_ape_code[0]}"
+    sql_query += """GROUP BY siren
+                    ORDER BY value DESC"""
+    sql_param = {"ape": enthic_ape_code}
+    companies = fetchall(sql_query, sql_param)
+    result = [
+        {"siren": item[0], "denomination": item[1], "score": item[2]}
+        for item in companies
+    ]
+    return OKJSONResponse(result)
 
 
 @application.route("/exist/siren/<sirens>", methods=["GET"], strict_slashes=False)
