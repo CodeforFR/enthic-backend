@@ -43,7 +43,7 @@ def list_bundles(year: int):
     List all zip file for a given year.
     """
     r = requests.get(os.path.join(BASE_URL, str(year)))
-    assert r.status_code == 200
+    assert r.status_code == 200, f"page {BASE_URL} pour l'année {year} renvoit une erreur"
     page = BeautifulSoup(r.content.decode("utf-8"), "html.parser")
     return sorted(x.text for x in page.find_all("a") if x.text.startswith("bilans_"))
 
